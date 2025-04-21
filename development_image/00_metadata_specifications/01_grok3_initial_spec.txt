@@ -1,0 +1,559 @@
+Thank you for the feedback and additional details. I understand the need to reorganize the specification to split the installation of programming languages (Java, Python, Node.js) into a separate layer (02_install_dev_environments) and incorporate the installation of Miniforge3 for Python as per the provided guide. Additionally, you want to install Miniforge3 and Node.js in a ~/programs folder, remove Java, Python, and Node.js from the first layer, and ensure the Dockerfiles are split across sub-folders to keep them modular and limit their size. I’ll augment the specification, update the prompt, and regenerate the necessary files to reflect these changes.
+Augmented Specification
+Below is the revised specification, incorporating your feedback. The first layer (01_build_base_software_image) will exclude Java, Python, and Node.js, focusing on system utilities and essential tools. The second layer (02_install_dev_environments) will handle the installation of Java, Python (via Miniforge3), and Node.js, with installations in ~/programs where applicable. The structure will remain modular, with separate sub-folders for each layer to keep Dockerfiles concise and builds manageable.
+Revised Development Docker Image Specification
+1. Image Name & Versioning
+First Layer: development-level01-basic-software
+Second Layer: development-level02-dev-environments
+Versioning: Both layers will use v1.0.0, following semantic versioning (major.minor.patch).
+Global Environment Script (00_common_env.sh):
+bash
+IMAGE_NAME_SUFFIX_BASE_SOFTWARE="development-level01-basic-software"
+IMAGE_NAME_SUFFIX_DEV_ENVIRONMENTS="development-level02-dev-environments"
+IMAGE_VERSION="1.0.0"
+TIMEZONE="Europe/Zurich"
+2. Project Structure
+The repository structure is modular, with separate sub-folders for each layer to ensure scalability and maintainability.
+development_image/
+├── 00_common_env.sh          # Global environment variables
+├── 01_build_base_software_image/
+│   ├── build.sh              # Script to build the base image
+│   ├── Dockerfile            # Defines the base software layer
+│   ├── config/               # Configuration files (SSH, timezone, etc.)
+│   ├── scripts/              # Setup scripts (SSH, workspace)
+│   └── README.md             # Documentation for layer 01
+├── 02_install_dev_environments/
+│   ├── build.sh              # Script to build the dev environments layer
+│   ├── Dockerfile            # Defines Java, Python (Miniforge3), Node.js
+│   ├── config/               # Configuration files (e.g., Miniforge3 settings)
+│   ├── scripts/              # Scripts for installing Miniforge3, Node.js, etc.
+│   └── README.md             # Documentation for layer 02
+└── README.md                 # Project-level documentation
+This structure keeps Dockerfiles focused and allows independent builds for each layer.
+3. Layer 01: Base Software Image (development-level01-basic-software)
+Purpose: Provide a lightweight foundation with system utilities, SSH, and a developer user, excluding programming languages.
+Base Image: ubuntu:22.04
+User Setup:
+Create a user developer with home directory /home/developer.
+Initialize a development workspace:
+/home/developer/dev
+├── java
+├── node
+├── python
+Set permissions for developer (non-root, sudo privileges).
+Essential Software (excluding Java, Python, Node.js):
+Version Control: git, git-lfs
+System Utilities: net-tools, curl, wget, tcpdump, htop, top, psmisc, vim, nano, tmux, zip, unzip
+Logging & Scheduling: logrotate, cron
+SSH: openssh-server (public/private key auth, no root login)
+SSH Configuration:
+Modify /etc/ssh/sshd_config:
+PasswordAuthentication no
+PermitRootLogin no
+AllowUsers developer
+Provide a script to initialize SSH keys.
+Timezone: Set to Europe/Zurich (configurable via TIMEZONE variable).
+Git Branch Visibility:
+Enhance .bashrc to show the current Git branch:
+bash
+parse_git_branch() {
+    git branch 2>/dev/null | grep '*' | sed 's/* //'
+}
+PS1="\[\e[1;32m\]\u@\h:\[\e[1;34m\]\w\[\e[0;33m\](\$(parse_git_branch))\[\e[0m\]\$ "
+Build Script: build.sh to build and tag the image.
+4. Layer 02: Development Environments (development-level02-dev-environments)
+Purpose: Install programming languages (Java, Python via Miniforge3, Node.js) in a modular layer, with installations in ~/programs where specified.
+Base Image: development-level01-basic-software:1.0.0
+Programs Directory:
+Create /home/developer/programs for Miniforge3 and Node.js installations.
+Set ownership to developer.
+Software Installations:
+Java:
+Install OpenJDK 17.
+Configure JAVA_HOME and update PATH.
+Python:
+Install Miniforge3 in /home/developer/programs/miniforge3 following the steps in this guide:
+Download the latest Miniforge3 installer for Linux x86_64.
+Install non-interactively with bash Miniforge3-Linux-x86_64.sh -b -p /home/developer/programs/miniforge3.
+Initialize Miniforge3 for Bash.
+Update .bashrc to include Miniforge3 activation.
+Ensure pip and conda are available.
+Node.js:
+Install Node.js 20 in /home/developer/programs/node.
+Use a version manager (e.g., n) or direct installation.
+Update PATH to include Node.js binaries.
+Ensure npm is available.
+Workspace Integration:
+Ensure the /home/developer/dev directories (java, node, python) are compatible with the installed environments.
+Build Script: build.sh to build and tag the image.
+5. Build Optimization:
+Layer 01 Dockerfile: Keep minimal, focusing on system tools and user setup (~10-15 RUN commands).
+Layer 02 Dockerfile: Focus on programming languages, with separate RUN commands for each (Java, Python, Node.js) to optimize caching.
+Image Size: Clean up apt caches, temporary files, and installer artifacts in both Dockerfiles.
+6. Expansion Plan:
+Future layers (e.g., 03_dev_tools, 04_ide_support) can build on development-level02-dev-environments.
+Example: 03_dev_tools could include Maven, Gradle, or testing frameworks.
+Revised Prompt for Visual Studio Copilot Agent and Claude
+Below is the updated prompt, reflecting the split into two layers and the inclusion of Miniforge3. It’s concise, actionable, and ensures modular Dockerfiles.
+plaintext
+I need help creating a modular Docker image for a development environment, split into two layers: 'development-level01-basic-software:v1.0.0' (system tools) and 'development-level02-dev-environments:v1.0.0' (programming languages). Both are based on Ubuntu 22.04.
+
+1. **Project Structure**:
+   - Create a directory structure with:
+     - `00_common_env.sh`: Defines variables:
+       ```
+       IMAGE_NAME_SUFFIX_BASE_SOFTWARE="development-level01-basic-software"
+       IMAGE_NAME_SUFFIX_DEV_ENVIRONMENTS="development-level02-dev-environments"
+       IMAGE_VERSION="1.0.0"
+       TIMEZONE="Europe/Zurich"
+       ```
+     - `01_build_base_software_image/`:
+       - `build.sh`: Builds and tags the base image.
+       - `Dockerfile`: Defines system tools and user setup.
+       - `config/`: For SSH configs.
+       - `scripts/`: For SSH and workspace setup.
+       - `README.md`: Layer documentation.
+     - `02_install_dev_environments/`:
+       - `build.sh`: Builds and tags the dev environments image.
+       - `Dockerfile`: Defines Java, Python (Miniforge3), Node.js.
+       - `config/`: For environment configs.
+       - `scripts/`: For Miniforge3 and Node.js setup.
+       - `README.md`: Layer documentation.
+     - Top-level `README.md`.
+
+2. **Layer 01: Base Software Image**:
+   - **Base Image**: `ubuntu:22.04`
+   - **Dockerfile**:
+     - Install: git, git-lfs, net-tools, curl, wget, tcpdump, htop, top, psmisc, vim, nano, tmux, zip, unzip, logrotate, cron, openssh-server.
+     - Set timezone to `Europe/Zurich` (configurable via `TIMEZONE`).
+     - Create user `developer` with home `/home/developer`, sudo privileges.
+     - Set up workspace `/home/developer/dev` with subdirectories `java`, `node`, `python`.
+     - Configure SSH: `PasswordAuthentication no`, `PermitRootLogin no`, `AllowUsers developer`.
+     - Add Git branch prompt to `.bashrc` (yellow branch in parentheses).
+     - Clean up apt caches and temporary files.
+   - **Scripts**:
+     - `setup_ssh.sh`: Initialize SSH keys.
+     - `setup_workspace.sh`: Create workspace directories.
+
+3. **Layer 02: Development Environments**:
+   - **Base Image**: `development-level01-basic-software:1.0.0`
+   - **Dockerfile**:
+     - Create `/home/developer/programs` for Miniforge3 and Node.js.
+     - Install OpenJDK 17, set `JAVA_HOME` and `PATH`.
+     - Install Miniforge3 in `/home/developer/programs/miniforge3` (follow https://github.com/99sono/install_guides/blob/main/conda_miniforge3/installation_steps.md):
+       - Download Miniforge3-Linux-x86_64.sh.
+       - Install non-interactively with `bash Miniforge3-Linux-x86_64.sh -b -p /home/developer/programs/miniforge3`.
+       - Initialize for Bash, update `.bashrc`.
+     - Install Node.js 20 in `/home/developer/programs/node`, update `PATH`, ensure `npm` is available.
+     - Clean up temporary files and installer artifacts.
+   - **Scripts**:
+     - `setup_miniforge3.sh`: Handle Miniforge3 installation and initialization.
+     - `setup_nodejs.sh`: Handle Node.js installation.
+
+4. **Build Scripts**:
+   - `01_build_base_software_image/build.sh`: Build and tag `development-level01-basic-software:1.0.0`.
+   - `02_install_dev_environments/build.sh`: Build and tag `development-level02-dev-environments:1.0.0`.
+   - Include error handling and logging.
+
+5. **Documentation**:
+   - Create `README.md` files for both layers with instructions for building, running, and SSH access.
+   - Include volume mount examples for SSH keys and workspace.
+
+6. **Optimization**:
+   - Keep Dockerfiles modular (separate `RUN` commands for each software).
+   - Minimize image size by cleaning up caches and temporary files.
+   - Ensure layer caching for faster builds.
+
+Please generate the following files:
+- `00_common_env.sh`
+- `01_build_base_software_image/Dockerfile`
+- `01_build_base_software_image/build.sh`
+- `01_build_base_software_image/config/sshd_config`
+- `01_build_base_software_image/scripts/setup_ssh.sh`
+- `01_build_base_software_image/scripts/setup_workspace.sh`
+- `01_build_base_software_image/README.md`
+- `02_install_dev_environments/Dockerfile`
+- `02_install_dev_environments/build.sh`
+- `02_install_dev_environments/scripts/setup_miniforge3.sh`
+- `02_install_dev_environments/scripts/setup_nodejs.sh`
+- `02_install_dev_environments/README.md`
+
+Ensure security, maintainability, and minimal image size. Suggest improvements if needed.
+This prompt:
+Splits the setup into two layers as requested.
+Incorporates Miniforge3 installation for Python.
+Places Miniforge3 and Node.js in /home/developer/programs.
+Keeps Dockerfiles modular and concise.
+Requests all necessary files for both layers.
+Generated Files
+Below are the key files for both layers, updated to reflect the revised specification. These files are designed to be modular, optimized, and ready for use or further refinement by Copilot/Claude.
+1. 00_common_env.sh
+bash
+#!/bin/bash
+# Global environment variables for the development Docker images
+
+export IMAGE_NAME_SUFFIX_BASE_SOFTWARE="development-level01-basic-software"
+export IMAGE_NAME_SUFFIX_DEV_ENVIRONMENTS="development-level02-dev-environments"
+export IMAGE_VERSION="1.0.0"
+export TIMEZONE="Europe/Zurich"
+2. 01_build_base_software_image/Dockerfile
+dockerfile
+# Use Ubuntu 22.04 as the base image
+FROM ubuntu:22.04
+
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TIMEZONE=Europe/Zurich
+
+# Install essential packages and clean up
+RUN apt-get update && apt-get install -y \
+    git git-lfs \
+    net-tools curl wget tcpdump \
+    htop top psmisc \
+    vim nano tmux zip unzip \
+    logrotate cron \
+    openssh-server \
+    sudo \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Set timezone
+RUN ln -sf /usr/share/zoneinfo/$TIMEZONE /etc/localtime \
+    && echo "$TIMEZONE" > /etc/timezone \
+    && dpkg-reconfigure -f noninteractive tzdata
+
+# Create developer user and set up home directory
+RUN useradd -m -s /bin/bash developer \
+    && echo "developer ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/developer
+
+# Copy configuration files and scripts
+COPY config/sshd_config /etc/ssh/sshd_config
+COPY scripts/setup_ssh.sh /usr/local/bin/setup_ssh.sh
+COPY scripts/setup_workspace.sh /usr/local/bin/setup_workspace.sh
+
+# Set permissions for scripts
+RUN chmod +x /usr/local/bin/setup_ssh.sh /usr/local/bin/setup_workspace.sh
+
+# Configure Git branch prompt in .bashrc
+RUN echo 'parse_git_branch() { git branch 2>/dev/null | grep "*" | sed "s/* //"; }' >> /home/developer/.bashrc \
+    && echo 'PS1="\[\e[1;32m\]\u@\h:\[\e[1;34m\]\w\[\e[0;33m\](\$(parse_git_branch))\[\e[0m\]\$ "' >> /home/developer/.bashrc
+
+# Set up SSH directory
+RUN mkdir -p /home/developer/.ssh \
+    && chown developer:developer /home/developer/.ssh \
+    && chmod 700 /home/developer/.ssh
+
+# Run workspace setup
+RUN /usr/local/bin/setup_workspace.sh
+
+# Expose SSH port
+EXPOSE 22
+
+# Start SSH service
+CMD ["/usr/sbin/sshd", "-D"]
+3. 01_build_base_software_image/build.sh
+bash
+#!/bin/bash
+# Script to build the base software image
+
+# Load environment variables
+if [ -f ../00_common_env.sh ]; then
+    source ../00_common_env.sh
+else
+    echo "Error: 00_common_env.sh not found!"
+    exit 1
+fi
+
+# Validate variables
+if [ -z "$IMAGE_NAME_SUFFIX_BASE_SOFTWARE" ] || [ -z "$IMAGE_VERSION" ]; then
+    echo "Error: IMAGE_NAME_SUFFIX_BASE_SOFTWARE or IMAGE_VERSION not set!"
+    exit 1
+fi
+
+# Build the Docker image
+echo "Building Docker image: $IMAGE_NAME_SUFFIX_BASE_SOFTWARE:$IMAGE_VERSION"
+docker build -t "$IMAGE_NAME_SUFFIX_BASE_SOFTWARE:$IMAGE_VERSION" . || {
+    echo "Error: Docker build failed!"
+    exit 1
+}
+
+echo "Build completed successfully!"
+4. 01_build_base_software_image/config/sshd_config
+plaintext
+# SSH configuration for development-level01-basic-software
+PasswordAuthentication no
+PermitRootLogin no
+AllowUsers developer
+5. 01_build_base_software_image/scripts/setup_ssh.sh
+bash
+#!/bin/bash
+# Script to set up SSH keys for the developer user
+
+# Ensure .ssh directory exists
+mkdir -p /home/developer/.ssh
+chmod 700 /home/developer/.ssh
+chown developer:developer /home/developer/.ssh
+
+# Placeholder for public key
+if [ -f /home/developer/.ssh/authorized_keys ]; then
+    chmod 600 /home/developer/.ssh/authorized_keys
+    chown developer:developer /home/developer/.ssh/authorized_keys
+else
+    echo "Warning: No authorized_keys file found. Please add public key to /home/developer/.ssh/authorized_keys"
+fi
+6. 01_build_base_software_image/scripts/setup_workspace.sh
+bash
+#!/bin/bash
+# Script to set up the developer workspace
+
+WORKSPACE_DIR="/home/developer/dev"
+SUBDIRS=("java" "node" "python")
+
+# Create workspace directories
+mkdir -p "$WORKSPACE_DIR"
+for dir in "${SUBDIRS[@]}"; do
+    mkdir -p "$WORKSPACE_DIR/$dir"
+done
+
+# Set permissions
+chown -R developer:developer "$WORKSPACE_DIR"
+chmod -R 755 "$WORKSPACE_DIR"
+7. 01_build_base_software_image/README.md
+markdown
+# Development Level 01 Basic Software Image
+
+This Docker image (`development-level01-basic-software:1.0.0`) provides a lightweight foundation with system utilities, SSH, and a developer user.
+
+## Prerequisites
+- Docker installed.
+- SSH public key for the `developer` user.
+
+## Building the Image
+1. Navigate to `01_build_base_software_image/`.
+2. Run:
+   ```bash
+   ./build.sh
+Running the Container
+Start the container:
+bash
+docker run -d -p 2222:22 --name base-container development-level01-basic-software:1.0.0
+Copy your SSH public key:
+bash
+docker cp ~/.ssh/id_rsa.pub base-container:/home/developer/.ssh/authorized_keys
+Connect via SSH:
+bash
+ssh -p 2222 developer@localhost
+Workspace
+Workspace at /home/developer/dev with subdirectories: java, node, python.
+Installed Software
+Version Control: git, git-lfs
+Utilities: net-tools, curl, wget, tcpdump, htop, top, psmisc, vim, nano, tmux, zip, unzip
+System: logrotate, cron, openssh-server
+Customization
+Change timezone via TIMEZONE in 00_common_env.sh.
+Add SSH keys to /home/developer/.ssh/authorized_keys.
+
+#### **8. `02_install_dev_environments/Dockerfile`**
+```dockerfile
+# Use the base software image
+FROM development-level01-basic-software:1.0.0
+
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+ENV PATH=$JAVA_HOME/bin:$PATH
+
+# Create programs directory
+RUN mkdir -p /home/developer/programs \
+    && chown developer:developer /home/developer/programs \
+    && chmod 755 /home/developer/programs
+
+# Install OpenJDK 17
+RUN apt-get update && apt-get install -y \
+    openjdk-17-jdk \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Copy setup scripts
+COPY scripts/setup_miniforge3.sh /usr/local/bin/setup_miniforge3.sh
+COPY scripts/setup_nodejs.sh /usr/local/bin/setup_nodejs.sh
+
+# Set permissions
+RUN chmod +x /usr/local/bin/setup_miniforge3.sh /usr/local/bin/setup_nodejs.sh
+
+# Run setup scripts as developer user
+USER developer
+RUN /usr/local/bin/setup_miniforge3.sh \
+    && /usr/local/bin/setup_nodejs.sh
+
+# Switch back to root for SSH
+USER root
+
+# Expose SSH port (inherited from base)
+EXPOSE 22
+
+# Start SSH service
+CMD ["/usr/sbin/sshd", "-D"]
+9. 02_install_dev_environments/build.sh
+bash
+#!/bin/bash
+# Script to build the dev environments image
+
+# Load environment variables
+if [ -f ../00_common_env.sh ]; then
+    source ../00_common_env.sh
+else
+    echo "Error: 00_common_env.sh not found!"
+    exit 1
+fi
+
+# Validate variables
+if [ -z "$IMAGE_NAME_SUFFIX_DEV_ENVIRONMENTS" ] || [ -z "$IMAGE_VERSION" ]; then
+    echo "Error: IMAGE_NAME_SUFFIX_DEV_ENVIRONMENTS or IMAGE_VERSION not set!"
+    exit 1
+fi
+
+# Build the Docker image
+echo "Building Docker image: $IMAGE_NAME_SUFFIX_DEV_ENVIRONMENTS:$IMAGE_VERSION"
+docker build -t "$IMAGE_NAME_SUFFIX_DEV_ENVIRONMENTS:$IMAGE_VERSION" . || {
+    echo "Error: Docker build failed!"
+    exit 1
+}
+
+echo "Build completed successfully!"
+10. 02_install_dev_environments/scripts/setup_miniforge3.sh
+bash
+#!/bin/bash
+# Script to install Miniforge3 for Python
+
+INSTALL_DIR="/home/developer/programs/miniforge3"
+INSTALLER_URL="https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh"
+INSTALLER_PATH="/tmp/Miniforge3-Linux-x86_64.sh"
+
+# Download Miniforge3 installer
+curl -L -o "$INSTALLER_PATH" "$INSTALLER_URL" || {
+    echo "Error: Failed to download Miniforge3 installer"
+    exit 1
+}
+
+# Install Miniforge3 non-interactively
+bash "$INSTALLER_PATH" -b -p "$INSTALL_DIR" || {
+    echo "Error: Miniforge3 installation failed"
+    exit 1
+}
+
+# Initialize Miniforge3
+"$INSTALL_DIR/bin/conda" init bash || {
+    echo "Error: Failed to initialize Miniforge3"
+    exit 1
+}
+
+# Clean up
+rm -f "$INSTALLER_PATH"
+
+# Update .bashrc to activate Miniforge3
+echo "source $INSTALL_DIR/etc/profile.d/conda.sh" >> /home/developer/.bashrc
+echo "conda activate base" >> /home/developer/.bashrc
+11. 02_install_dev_environments/scripts/setup_nodejs.sh
+bash
+#!/bin/bash
+# Script to install Node.js in /home/developer/programs/node
+
+NODE_VERSION="20"
+INSTALL_DIR="/home/developer/programs/node"
+TEMP_DIR="/tmp/node-install"
+
+# Create temporary directory
+mkdir -p "$TEMP_DIR"
+
+# Download Node.js
+curl -L "https://nodejs.org/dist/v${NODE_VERSION}.0/node-v${NODE_VERSION}.0-linux-x64.tar.xz" -o "$TEMP_DIR/node.tar.xz" || {
+    echo "Error: Failed to download Node.js"
+    exit 1
+}
+
+# Extract and install
+mkdir -p "$INSTALL_DIR"
+tar -xJf "$TEMP_DIR/node.tar.xz" -C "$INSTALL_DIR" --strip-components=1 || {
+    echo "Error: Failed to extract Node.js"
+    exit 1
+}
+
+# Update .bashrc
+echo "export PATH=$INSTALL_DIR/bin:\$PATH" >> /home/developer/.bashrc
+
+# Clean up
+rm -rf "$TEMP_DIR"
+12. 02_install_dev_environments/README.md
+markdown
+# Development Level 02 Dev Environments Image
+
+This Docker image (`development-level02-dev-environments:1.0.0`) builds on `development-level01-basic-software:1.0.0`, adding Java, Python (via Miniforge3), and Node.js.
+
+## Prerequisites
+- Docker installed.
+- Built `development-level01-basic-software:1.0.0`.
+
+## Building the Image
+1. Navigate to `02_install_dev_environments/`.
+2. Run:
+   ```bash
+   ./build.sh
+Running the Container
+Start the container:
+bash
+docker run -d -p 2222:22 --name dev-container development-level02-dev-environments:1.0.0
+Copy your SSH public key:
+bash
+docker cp ~/.ssh/id_rsa.pub dev-container:/home/developer/.ssh/authorized_keys
+Connect via SSH:
+bash
+ssh -p 2222 developer@localhost
+Installed Software
+Java: OpenJDK 17
+Python: Miniforge3 in /home/developer/programs/miniforge3
+Node.js: Version 20 in /home/developer/programs/node
+Workspace
+Workspace at /home/developer/dev with subdirectories: java, node, python.
+Customization
+Add SSH keys to /home/developer/.ssh/authorized_keys.
+Modify Miniforge3 environments via conda.
+
+---
+
+### **Key Changes and Notes**
+1. **Layer Separation**:
+   - Layer 01 is now lightweight, focusing on system tools, SSH, and user setup.
+   - Layer 02 handles Java, Python (Miniforge3), and Node.js, with installations in `/home/developer/programs` where specified.
+2. **Miniforge3 Installation**:
+   - Follows the provided guide, installing Miniforge3 non-interactively and initializing it for Bash.
+   - Adds `conda` activation to `.bashrc` for seamless Python environment access.
+3. **Node.js Installation**:
+   - Installed in `/home/developer/programs/node` using a direct tarball download for simplicity.
+   - Updates `PATH` in `.bashrc` to include Node.js binaries.
+4. **Dockerfile Modularity**:
+   - Each Dockerfile is kept concise with separate `RUN` commands for caching.
+   - Cleanup steps (`rm -rf /var/lib/apt/lists/*`, etc.) minimize image size.
+5. **Build Scripts**:
+   - Both `build.sh` scripts include error handling and load variables from `00_common_env.sh`.
+6. **Programs Directory**:
+   - Created in Layer 02 for Miniforge3 and Node.js, owned by `developer`.
+
+---
+
+### **Next Steps**
+1. **Test the Files**:
+   - Copy the files into your repository.
+   - Build Layer 01: `cd 01_build_base_software_image && ./build.sh`
+   - Build Layer 02: `cd 02_install_dev_environments && ./build.sh`
+   - Run the Layer 02 container and test SSH, Java, Python, and Node.js.
+2. **Use the Prompt**:
+   - Paste the revised prompt into Visual Studio Copilot Agent or Claude to generate or refine the files further.
+   - Share any suggestions from Copilot/Claude for additional improvements.
+3. **Feedback**:
+   - Does this revised setup meet your needs?
+   - Are there additional configurations (e.g., specific Miniforge3 packages, Node.js tools) you’d like to include?
+4. **Future Layers**:
+   - If you’re planning Layer 03 (e.g., debugging tools), I can help define its specification.
+
+Let me know how you’d like to proceed! 🚀

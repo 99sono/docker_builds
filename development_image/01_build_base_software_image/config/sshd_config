@@ -1,0 +1,8 @@
+# SSH configuration for development-level01-basic-software
+PasswordAuthentication no
+PermitRootLogin no
+AllowUsers developer
+X11Forwarding no
+MaxAuthTries 3
+PubkeyAuthentication yes
+AuthorizedKeysFile .ssh/authorized_keys
