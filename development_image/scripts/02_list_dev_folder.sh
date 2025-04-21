@@ -1,0 +1,1 @@
+docker exec test-dev-container ls -la /home/developer/dev

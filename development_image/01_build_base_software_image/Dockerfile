@@ -29,10 +29,9 @@ RUN useradd -m -s /bin/bash developer \
 # Copy configuration files and scripts
 COPY config/sshd_config /etc/ssh/sshd_config
 COPY scripts/setup_ssh.sh /usr/local/bin/setup_ssh.sh
-COPY scripts/setup_workspace.sh /usr/local/bin/setup_workspace.sh
 
 # Set permissions for scripts
-RUN chmod +x /usr/local/bin/setup_ssh.sh /usr/local/bin/setup_workspace.sh
+RUN chmod +x /usr/local/bin/setup_ssh.sh
 
 # Configure Git branch prompt in .bashrc
 RUN echo 'parse_git_branch() { git branch 2>/dev/null | grep "*" | sed "s/* //"; }' >> /home/developer/.bashrc \
@@ -42,9 +41,6 @@ RUN echo 'parse_git_branch() { git branch 2>/dev/null | grep "*" | sed "s/* //";
 RUN mkdir -p /home/developer/.ssh \
     && chown developer:developer /home/developer/.ssh \
     && chmod 700 /home/developer/.ssh
-
-# Run workspace setup
-RUN /usr/local/bin/setup_workspace.sh
 
 # Expose SSH port
 EXPOSE 22

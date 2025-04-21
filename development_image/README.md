@@ -6,6 +6,7 @@ This project provides a modular set of Docker images for development environment
 
 - `01_build_base_software_image`: Base layer with system utilities and SSH setup
 - `02_build_dev_environments_image`: Development environments layer with Java, Python (Miniforge3), and Node.js
+- `03_project_stubs`: Minimal project stubs for each development environment
 
 ## Quick Start
 
@@ -21,17 +22,23 @@ cd ../02_build_dev_environments_image
 ./build.sh
 ```
 
-3. Run a container:
+3. Build the project stubs image:
 ```bash
-docker run -d -p 2222:22 --name dev-container development-level02-dev-environments:1.0.0
+cd ../03_project_stubs
+./build.sh
 ```
 
-4. Add your SSH key:
+4. Run a container:
+```bash
+docker run -d -p 2222:22 --name dev-container development-level03-project-stubs:1.0.0
+```
+
+5. Add your SSH key:
 ```bash
 docker cp ~/.ssh/id_rsa.pub dev-container:/home/developer/.ssh/authorized_keys
 ```
 
-5. Connect via SSH:
+6. Connect via SSH:
 ```bash
 ssh -p 2222 developer@localhost
 ```
@@ -42,13 +49,20 @@ ssh -p 2222 developer@localhost
 - Ubuntu-based with essential system utilities
 - Secure SSH setup
 - Git with branch display in prompt
-- Workspace structure for different programming languages
+- Developer user with sudo privileges
 
 ### Development Environments (Level 02)
 - Java (OpenJDK 17)
-- Python via Miniforge3 (in ~/programs)
-- Node.js 20.x (in ~/programs)
-- Full development environment configurations
+- Python via Miniforge3 (in ~/programs/miniforge3)
+- Node.js 20.x (in ~/programs/node)
+
+### Project Stubs (Level 03)
+- Minimal project templates for each environment
+- No dependencies or package installations
+- Ready-to-use project structures:
+  - Java: Maven-based projects with minimal pom.xml
+  - Node.js: Basic npm projects with package.json
+  - Python: Simple Python projects with empty requirements.txt
 
 ## Configuration
 
