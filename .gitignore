@@ -60,3 +60,9 @@ yarn-error.log*
 .yarn/
 .pnp/
 .pnp.js
+
+
+# Aider related files to ignore.
+.aider.input.history
+.aider.tags.cache.v4
+.aider.chat.history.md
