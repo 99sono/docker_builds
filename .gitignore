@@ -1,3 +1,6 @@
+# Dump folders
+deleteMe
+
 # Docker
 .docker/
 docker-compose.override.yml
