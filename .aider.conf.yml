@@ -1,3 +1,7 @@
+################################
+# LOCAL MODELS:
+################################
+
 ## Specify the model to use for the main chat
 # Dense models
 # model: ollama_chat/qwen2.5:7b
@@ -6,20 +10,26 @@
 
 #  Section containing Mixture of experts model (the less active parameters the more able to run on the CPU)
 # mixture of experts model
-model: ollama_chat/qwen3:30b-a3b
+# model: ollama_chat/qwen3:30b-a3b
 
-
-## Specify the model to use for commit messages and chat history summarization (default depends on --model)
-# weak-model: ollama/qwen2.5:7b
-
+################################
+# OPEN ROUTER MODELS:
+################################
+model: openrouter/deepseek/deepseek-r1:free
 
 # Server Configuration property does not exist exist
 # We need to export OLLAMA_API_BASE=http://127.0.0.1:11434 
 # server: http://localhost:11434
 # The Yaml configuration is open-ai-base
-## Specify the api base url
-openai-api-base: http://localhost:11434
-# ollama-api-base: http://localhost:11434
+## Specify the api base url (uncomment this if using local llms)
+#openai-api-base: http://localhost:11434
+
+
+# If we wan to use models proxied by open router (e.g deep seek r1) 
+# to not commit the API key set in ther terminal export OPENAI_API_KEY=WithTheKeyOfOpenRouter
+# See: https://aider.chat/docs/llms/openrouter.html
+# https://openrouter.ai/api/v1
+openai-api-base: https://openrouter.ai/api/v1/chat/completions
 
 ###############
 # Git Settings:

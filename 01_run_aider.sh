@@ -12,5 +12,6 @@ SCRIPT_PATH="$(dirname "$(realpath "$0")")"
 
 
 # Run aider with the parent directory as its context, without changing the working directory of the current shell
-( cd "$SCRIPT_PATH/.." && aider   )
-
+# ( cd "$SCRIPT_PATH/.." &&   )
+# aider --model openrouter/deepseek/deepseek-r1:free
+aider
