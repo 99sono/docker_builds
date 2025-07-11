@@ -41,6 +41,16 @@ This layer builds on the base image to provide a complete development environmen
 ./build.sh
 ```
 
+## Verification
+After building the image, run the verification scripts:
+```bash
+cd verify
+for test in *.sh; do
+    echo "Running $test..."
+    ./$test || echo "Test failed!"
+done
+```
+
 ## Usage
 
 1. Start a container:
