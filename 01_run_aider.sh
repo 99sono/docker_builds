@@ -4,6 +4,12 @@
 SCRIPT_PATH="$(dirname "$(realpath "$0")")"
 
 
+# Make sure that the OPENROUTER_API_KEY is configured e.g. on the .bashrc
+if [ -z "${OPENROUTER_API_KEY}" ]; then
+  echo "ERROR: OPENROUTER_API_KEY not set!"
+  exit 1
+fi
+
 # NOTE: There is no need to configure the environment variable OLLAMA_API_BASE since
 # the .aider.conf.yml already contains the approapriate configuration
 # https://aider.chat/docs/llms/ollama.html

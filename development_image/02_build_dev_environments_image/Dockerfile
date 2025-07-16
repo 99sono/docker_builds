@@ -6,6 +6,10 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 ENV PATH=$JAVA_HOME/bin:$PATH
 
+
+# Start as user root
+USER root
+
 # Install development tools and dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
@@ -41,11 +45,8 @@ WORKDIR /home/developer
 RUN /usr/local/bin/setup_miniforge3.sh \
     && /usr/local/bin/setup_nodejs.sh
 
-# Switch back to root for SSH service
-USER root
-
-# Expose SSH port (inherited from base)
+# Expose SSH port
 EXPOSE 22
 
-# Start SSH service
-CMD ["/usr/sbin/sshd", "-D"]
+# Set the entry point for the container
+ENTRYPOINT ["/usr/local/bin/entrypoint_base_software_image.sh"]
