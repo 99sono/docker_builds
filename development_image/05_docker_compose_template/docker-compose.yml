@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  dev-environment:
+    image: ${DEV_IMAGE_NAME}:${DEV_IMAGE_VERSION}
+    container_name: ${CONTAINER_NAME}
+    ports:
+      - "${SSH_HOST_PORT}:22"
+      - "${NODE_PORT_1}:3000"
+      - "${NODE_PORT_2}:3001"
+      - "${JAVA_PORT}:8080"
+      - "${JAVA_DEBUG_PORT}:5005"
+    volumes:
+      - ${DEV_VOLUME_PATH}:/home/developer/dev
+      - ${SSH_KEYS_PATH}:/home/developer/.ssh/keys:ro
+    environment:
+      - TZ=${TZ}
+    networks:
+      - dev-network
+    restart: unless-stopped
+
+  # Optional: PostgreSQL for development
+  postgres:
+    image: postgres:15
+    container_name: dev-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${POSTGRES_HOST_PORT}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - dev-network
+    restart: unless-stopped
+
+  # Optional: Redis for caching
+  redis:
+    image: redis:7-alpine
+    container_name: dev-redis
+    ports:
+      - "${REDIS_HOST_PORT}:6379"
+    networks:
+      - dev-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  dev-network:
+    driver: bridge

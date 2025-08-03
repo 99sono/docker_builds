@@ -8,26 +8,15 @@ This layer builds on the base image to provide a complete development environmen
 - OpenJDK 17
 - Pre-configured JAVA_HOME and PATH
 - Maven build system
-- Sample project structure
 
 ### Python Development
 - Miniforge3 installation in ~/programs/miniforge3
 - Conda environment management
 - pip package manager
-- Development tools:
-  - pytest for testing
-  - black for code formatting
-  - flake8 for linting
-  - mypy for type checking
 
 ### Node.js Development
 - Node.js 20.x in ~/programs/node
 - npm package manager
-- TypeScript support
-- Development tools:
-  - Jest for testing
-  - ESLint for linting
-  - Prettier for formatting
 
 ## Prerequisites
 
@@ -99,13 +88,13 @@ mvn archetype:generate
 ## Customization
 
 ### Python Environments
-- Modify conda environment settings in setup_python_env.sh
-- Add custom packages to requirements.txt
+- Create custom conda environments as needed
+- Install packages via conda or pip
 
 ### Node.js Setup
-- Adjust Node.js version in setup_node_env.sh
-- Modify default npm packages in package.json
+- Install global packages with npm install -g
+- Configure project-specific settings as needed
 
 ### Java Configuration
-- Configure Maven settings in settings.xml
-- Adjust JVM options in environment variables
+- Configure Maven settings in ~/.m2/settings.xml
+- Set JVM options via JAVA_OPTS environment variable

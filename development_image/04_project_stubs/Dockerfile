@@ -1,5 +1,6 @@
 # Use dev environments image as base
-FROM development-level02-dev-environments:1.0.0
+ARG IMAGE_VERSION=1.0.0
+FROM development-level02-dev-environments:${IMAGE_VERSION}
 
 # Start as user root
 USER root

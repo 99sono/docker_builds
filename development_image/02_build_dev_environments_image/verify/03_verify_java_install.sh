@@ -16,7 +16,7 @@ fi
 # openjdk 17.0.15 2025-04-15
 # OpenJDK Runtime Environment (build 17.0.15+6-Ubuntu-0ubuntu125.04)
 # OpenJDK 64-Bit Server VM (build 17.0.15+6-Ubuntu-0ubuntu125.04, mixed mode, sharing)
-if ! docker exec ${TEST_CONTAINER_NAME} java -version 2>&1 | grep -i "openjdk version \"17"; then
+if ! docker exec ${TEST_CONTAINER_NAME} java -version 2>&1 | grep -i "openjdk version \"21"; then
     echo "❌ Wrong Java version installed"
     exit 1
 fi

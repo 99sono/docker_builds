@@ -1,5 +1,7 @@
-# Use Ubuntu 25.04 as the base image
-FROM ubuntu:25.04
+# Use Ubuntu 24.04 LTS as the base image for stability
+ARG UBUNTU_VERSION=24.04
+FROM ubuntu:${UBUNTU_VERSION}
+
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
@@ -33,6 +35,9 @@ RUN useradd -u 1000 -m -s /bin/bash developer \
 # Important: when a user has no assigned password logging in as this user is not possible
 # even if the public/private key is uploaded correctly to server
 RUN echo "developer:developer" | chpasswd
+
+# Ubuntu 24.04 doesn't automatically create the /run/sshd directory that SSHD needs for privilege separation.
+RUN mkdir -p /run/sshd && chmod 0755 /run/sshd
 
 # Copy configuration files and scripts
 COPY config/sshd_config /etc/ssh/sshd_config

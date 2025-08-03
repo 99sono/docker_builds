@@ -3,7 +3,7 @@ source ../../00_common_env.sh
 
 
 #IMAGE_NAME="development-level02-dev-environments:1.0.0"
-IMAGE_NAME="{IMAGE_NAME_SUFFIX_DEV_ENVIRONMENTS}:{IMAGE_VERSION}"
+IMAGE_NAME="${IMAGE_NAME_SUFFIX_DEV_ENVIRONMENTS}:${IMAGE_VERSION}"
 
 # Stop and remove existing container if it exists
 docker stop ${TEST_CONTAINER_NAME} >/dev/null 2>&1
