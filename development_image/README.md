@@ -1,142 +1,144 @@
-# Development Docker Image Build System
+# Development Docker Environment
 
-This repository contains a structured set of Dockerfiles and scripts for building development environments tailored for software development workflows. It includes base images, dev environment images, and project stubs for consistent and reproducible development setups.
+A comprehensive, multi-layered Docker development environment supporting Java, Node.js, and Python development with SSH access and IDE integration.
 
-## 📁 Directory Structure
+## 🚀 Quick Start
 
-- `development_image/`  
-  Contains Dockerfiles and scripts for building development images:
-  - `01_build_base_software_image/`  
-    Base image with essential tools (Ubuntu, SSH, basic utilities).
-  - `02_build_dev_environments_image/`  
-    Dev environment image with Java, Node.js, Python, and tools.
-  - `03_project_stubs/`  
-    Image with project templates and workspace structure.
+### Prerequisites
+- Docker installed
+- SSH key pair (for passwordless login)
 
-- `scripts/`  
-  Utility scripts for container setup and execution.
-
-## 🧰 Key Features
-
-- **Modular Image Building**: Each directory represents a stage in the development image pipeline.
-- **Consistent Environment**: Ensures reproducible development setups across teams.
-- **SSH Access**: Pre-configured SSH for easy container interaction.
-- **Workspace Structure**: Standardized directories for Python, Node.js, and Java projects.
-
-## 🛠 How to Build Images
-
-1. **Build Base Image**  
-   ```bash
-   cd development_image/01_build_base_software_image
-   ./build.sh
-   ```
-
-2. **Build Dev Environments Image**  
-   ```bash
-   cd development_image/02_build_dev_environments_image
-   ./build.sh
-   ```
-
-3. **Build Project Stubs Image**  
-   ```bash
-   cd development_image/03_project_stubs
-   ./build.sh
-   ```
-
-## 🚀 How to Run a Container
-
-1. **Run the Final Image**  
-   ```bash
-   cd development_image/scripts
-   ./01_run_final_container.sh
-   ```
-
-2. **Access via SSH**  
-   Connect to the container using SSH on port 2222:
-   ```bash
-   ssh developer@localhost -p 2222
-   ```
-
-## 📝 Notes
-
-- Ensure Docker is installed and running.
-- The `.aider.conf.yml` and `.aiderignore` files control Aider-specific behaviors (e.g., model selection, file ignores).
-- The `.gitignore` file ensures development artifacts are not committed to version control.
-
-## 📁 Additional Information
-
-### Structure
-
-- `01_build_base_software_image`: Base layer with system utilities and SSH setup
-- `02_build_dev_environments_image`: Development environments layer with Java, Python (Miniforge3), and Node.js
-- `03_project_stubs`: Minimal project stubs for each development environment
-
-### Quick Start
-
-1. Build the base image:
+### 1. Build the Environment
 ```bash
-cd 01_build_base_software_image
-./build.sh
+# Build all layers
+./scripts/build_all.sh
+
+# Or build individually
+cd 01_build_base_software_image && ./build.sh
+cd 02_build_dev_environments_image && ./build.sh
+cd 04_project_stubs && ./build.sh
 ```
 
-2. Build the development environments image:
+### 2. Start Development Environment
 ```bash
-cd ../02_build_dev_environments_image
-./build.sh
+# Using Docker Compose (recommended)
+docker-compose up -d
+
+# Or using individual container
+./scripts/01_run_final_container.sh
 ```
 
-3. Build the project stubs image:
+### 3. Connect via SSH
 ```bash
-cd ../03_project_stubs
-./build.sh
+# Upload your SSH key first
+./scripts/04_upload_public_key_to_container.sh
+
+# Connect
+ssh developer@localhost -p 2222
 ```
 
-4. Run a container:
-```bash
-docker run -d -p 2222:22 --name dev-container development-level03-project-stubs:1.0.0
+## 📁 Project Structure
+
+```
+development_image/
+├── 00_common_env.sh              # Environment configuration
+├── 01_build_base_software_image/ # Base Ubuntu + SSH setup
+├── 02_build_dev_environments_image/    # Java, Node.js, Python
+├── 03_project_stubs/            # Project templates
+├── docs/                        # Documentation
+├── scripts/                     # Helper scripts
+├── docker-compose.yml           # Daily development setup
+└── README.md
 ```
 
-5. Add your SSH key:
+## 🛠️ Pre-installed Tools
+
+### Languages & Runtimes
+- **Java**: OpenJDK 21 + Maven 3.9.6
+- **Node.js**: 20.11.1 LTS + npm
+- **Python**: Miniforge3 (conda) with Python 3.11
+
+### Development Tools
+- **SSH**: Key-based authentication only
+- **Git**: Latest version with LFS
+- **Editors**: vim, nano
+- **Build Tools**: make, gcc, build-essential
+
+## 🔧 Daily Usage
+
+### Starting Development
 ```bash
-docker cp ~/.ssh/id_rsa.pub dev-container:/home/developer/.ssh/authorized_keys
+# Start environment
+docker-compose up -d
+
+# (a) SSH into container 
+ssh developer@localhost -p 2222
+
+# (b) Docker interactive shell 
+docker exec -it -u developer "${CONTAINER_NAME}" /bin/bash
+
+
+# Navigate to workspace
+cd /home/developer/dev
 ```
 
-6. Connect via SSH:
+### Project Setup Examples
+- [Java Spring Boot](docs/usage_examples/java_project_setup.md)
+- [Node.js Express/React](docs/usage_examples/nodejs_project_setup.md)
+
+### Volume Mounting
 ```bash
-ssh -p 2222 developer@localhost
+# Mount local project
+docker run -d \
+  --name dev-container \
+  -p 2222:22 \
+  -p 3000-3005:3000-3005 \
+  -p 8080-8085:8080-8085 \
+  -v $(pwd)/your-project:/home/developer/dev/your-project \
+  development-image:latest
 ```
 
-### Features
+## 🌐 Port Mapping
 
-#### Base Image (Level 01)
-- Ubuntu-based with essential system utilities
-- Secure SSH setup
-- Git with branch display in prompt
-- Developer user with sudo privileges
+| Service | Port | Description |
+|---------|------|-------------|
+| SSH | 2222 | SSH access for IDEs |
+| Node.js | 3000-3005 | Development servers |
+| Java | 8080-8085 | Spring Boot apps |
+| Debug | 5005 | Java remote debugging |
 
-#### Development Environments (Level 02)
-- Java (OpenJDK 17)
-- Python via Miniforge3 (in ~/programs/miniforge3)
-- Node.js 20.x (in ~/programs/node)
+## 🔍 Verification
 
-#### Project Stubs (Level 03)
-- Minimal project templates for each environment
-- No dependencies or package installations
-- Ready-to-use project structures:
-  - Java: Maven-based projects with minimal pom.xml
-  - Node.js: Basic npm projects with package.json
-  - Python: Simple Python projects with empty requirements.txt
+Each build stage includes comprehensive verification:
+```bash
+# Verify base image
+cd 01_build_base_software_image/verify && ./05_verify_ssh_login_possible.sh
 
-### Configuration
+# Verify dev environment
+cd 02_build_dev_environments_image/verify && ./03_verify_java_install.sh
 
-Environment variables can be configured in `00_common_env.sh`:
-- Image names and versions
-- Timezone settings
+# Check all installations
+./scripts/03_verify_installations.sh
+```
 
-### Security
+## 🆘 Troubleshooting
 
-- Root login disabled
-- Password authentication disabled
-- SSH key-based authentication only
-- Non-root user with sudo privileges
+1. **Check container logs**: `docker logs daily-dev-container`
+2. **Verify SSH connection**: `ssh developer@localhost -p 2222`
+3. **Check tool installations**: `./scripts/03_verify_installations.sh`
 
+## 🏗️ Architecture
+
+The environment uses a layered approach:
+
+1. **Base Layer**: Ubuntu 24.04 LTS + SSH + essential tools
+2. **Dev Layer**: Java, Node.js, Python with package managers
+3. **Coding Agents**: Not  implemented yet
+4. **Project Layer**: Templates and scaffolding tools
+
+## 🎯 Use Cases
+
+- **Full-Stack Development**: Java backend + React frontend
+- **Machine Learning**: Python with conda environments
+- **Microservices**: Multiple Node.js services
+- **Team Development**: Consistent environments across team
