@@ -6,8 +6,12 @@ deleteMe
 docker-compose.override.yml
 
 # Environment files
+# we exclude .env but allow .env.example
+# Explanation: Keep real environment files untracked; only commit .env.example placeholders.
+# .env will hold private API keys. The .env.example will illustrate env variables
+# without exposing personal API keys so it should be safe to commit.
 .env
-.env.*
+
 
 # Editor/IDE
 .idea/
