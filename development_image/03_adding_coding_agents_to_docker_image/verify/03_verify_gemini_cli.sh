@@ -33,10 +33,12 @@ export NODE_BIN_DIR="/home/developer/programs/node/bin"
 # The gemini program is supposed to be found at:
 # gemini: /home/developer/programs/node/bin/gemini
 
-# Verify Node.js binary exists directly
-echo docker exec ${CONTAINER_NAME} ${NODE_BIN_DIR}/gemini --version
-if ! docker exec ${CONTAINER_NAME} ${NODE_BIN_DIR}/gemini --version >/dev/null 2>&1; then
-    echo "❌ gemini not found or not executable at ${NODE_BIN_DIR}/gemini"
+# Ensure Node is on PATH inside the container and then verify both node and gemini.
+# Use bash -lc so exports take effect in the exec'd shell.
+echo docker exec "${CONTAINER_NAME}" bash -lc 'export NODE_BIN_DIR="/home/developer/programs/node/bin"; export PATH="$NODE_BIN_DIR:$PATH"; command -v node && node --version && command -v gemini && gemini --version'
+if ! docker exec "${CONTAINER_NAME}" bash -lc 'export NODE_BIN_DIR="/home/developer/programs/node/bin"; export PATH="$NODE_BIN_DIR:$PATH"; command -v node && node --version && command -v gemini && gemini --version' >/dev/null 2>&1; then
+    echo "❌ Either node or gemini not found on PATH inside the container after exporting NODE_BIN_DIR."
+    echo "   Tried with NODE_BIN_DIR=/home/developer/programs/node/bin"
     exit 1
 fi
 
