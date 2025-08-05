@@ -27,9 +27,17 @@ services:
     # volumes:
     #   - ./workspace:/home/developer/workspace
 
-    # API keys for coding agents (optional). These are NOT required to run the container.
-    # Set these in your host shell or an .env file; the defaults here are empty strings.
+    # Agentic coding environment variables (optional).
+    # These support tools like qwen-code (OpenAI-compatible) and Gemini CLI.
+    # Recommended: create a local .env file next to this docker-compose.yml with your real values.
+    # Only commit .env.example (placeholders). Never commit your .env to version control.
+    # Docker Compose will automatically read .env in this directory and substitute into the values below.
     environment:
+      # OpenAI-compatible variables used by qwen-code and similar tools
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-}
+      # Other agent-specific keys (optional). Keep empty unless you use them.
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
 
