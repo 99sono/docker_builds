@@ -23,26 +23,12 @@
 # Fail fast: -e exit on error, -u error on unset var, -o pipefail fail on first error in pipelines
 set -euo pipefail
 
-echo "[install_gemini_cli] Verifying npm presence..."
-if ! command -v npm >/dev/null 2>&1; then
-  echo "[install_gemini_cli] ERROR: npm is not available. Ensure layer 02 installed Node.js/npm." >&2
-  exit 1
-fi
+# Node and npm are only in the path in interactive shells via .bashrc so here we need to add to the path
+export NODE_BIN_DIR="/home/developer/programs/node/bin"
+export PATH="$NODE_BIN_DIR:$PATH"
 
-echo "[install_gemini_cli] npm version: $(npm --version || echo 'unknown')"
-echo "[install_gemini_cli] node version: $(node --version || echo 'unknown')"
-
+# install gemini cli
+# see https://github.com/google-gemini/gemini-cli
 echo "[install_gemini_cli] Installing @google/gemini-cli globally..."
 npm install -g @google/gemini-cli
 
-echo "[install_gemini_cli] Validating installation..."
-if ! command -v gemini >/dev/null 2>&1; then
-  echo "[install_gemini_cli] ERROR: 'gemini' command not found on PATH after install." >&2
-  echo "[install_gemini_cli] npm global bin: $(npm bin -g || true)"
-  exit 1
-fi
-
-echo "[install_gemini_cli] gemini binary path: $(command -v gemini)"
-echo "[install_gemini_cli] gemini version: $(gemini --version || echo 'unknown')"
-
-echo "[install_gemini_cli] Installation successful."

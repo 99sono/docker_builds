@@ -26,25 +26,19 @@ if ! docker ps --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
   exit 1
 fi
 
-set +e
-docker exec "${CONTAINER_NAME}" bash -lc 'command -v gemini >/dev/null 2>&1'
-CMD_STATUS=$?
-set -e
 
-if [ "$CMD_STATUS" -ne 0 ]; then
-  echo "[verify-03/gemini] ERROR: 'gemini' command not found on PATH inside the container."
-  exit 2
+# Node and npm are only in the path in interactive shells via .bashrc so here we need to add to the path
+export NODE_BIN_DIR="/home/developer/programs/node/bin"
+
+# The gemini program is supposed to be found at:
+# gemini: /home/developer/programs/node/bin/gemini
+
+# Verify Node.js binary exists directly
+echo docker exec ${CONTAINER_NAME} ${NODE_BIN_DIR}/gemini --version
+if ! docker exec ${CONTAINER_NAME} ${NODE_BIN_DIR}/gemini --version >/dev/null 2>&1; then
+    echo "❌ gemini not found or not executable at ${NODE_BIN_DIR}/gemini"
+    exit 1
 fi
 
-# Show the path and version for clarity
-GEM_PATH=$(docker exec "${CONTAINER_NAME}" bash -lc 'command -v gemini')
-GEM_VER=$(docker exec "${CONTAINER_NAME}" bash -lc 'gemini --version 2>/dev/null || true')
 
-echo "[verify-03/gemini] gemini path: ${GEM_PATH}"
-if [ -n "${GEM_VER}" ]; then
-  echo "[verify-03/gemini] gemini version: ${GEM_VER}"
-else
-  echo "[verify-03/gemini] WARNING: 'gemini --version' did not return a version string."
-fi
-
-echo "[verify-03/gemini] Verification PASSED."
+echo "✅ Gemini coding agent verified successfully"
