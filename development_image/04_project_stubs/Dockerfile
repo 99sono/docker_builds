@@ -1,6 +1,6 @@
 # Use dev environments image as base
 ARG IMAGE_VERSION=1.0.0
-FROM development-level02-dev-environments:${IMAGE_VERSION}
+FROM development-level03-coding-agents:${IMAGE_VERSION}
 
 # Start as user root
 USER root
