@@ -1,215 +1,81 @@
-# Docker Compose Development Environment
+# Docker Compose Template — Dev Environment (Illustrative)
 
-This directory contains a complete Docker Compose setup for daily development using the development environment image.
+Purpose
+This template demonstrates how one might run the final assembled development image produced by this layered build (typically from Layer 04). It is intentionally minimal and focused on the dev environment only, removing unrelated services (e.g., Redis, Postgres).
 
-## 🚀 Quick Start
+What this template is (and is not)
+- It is a starting point for consuming the final image outside of this repository’s build workflow.
+- It is not a full-stack application compose file.
+- It does not start additional services by default; add those only if your project needs them.
 
-### 1. Initial Setup
-```bash
-# Copy environment template
-cp .env.example .env
-
-# Edit .env to customize ports and paths
-nano .env
-
-# Pull required images
-./01_pull_images.sh
+Image to run
+Replace the image reference with the tag you build in your environment. By default the template references the Layer 04 image name and an overridable version:
+```
+services:
+  dev:
+    image: development-level04-project-stubs:${IMAGE_VERSION:-1.0.0}
+```
+You can change IMAGE_VERSION by exporting it in your shell or using an .env file next to docker-compose.yml:
+```
+IMAGE_VERSION=1.0.0
 ```
 
-### 2. Start Development Environment
-```bash
-# Start all services
-./02_start_dev.sh
+Runtime environment variables for coding agents
+Some coding agents require API keys at runtime. This template includes common variables as placeholders:
+```
+environment:
+  OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+  GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+```
+- GEMINI_API_KEY: Required by the Google Gemini CLI to make API calls.
+- OPENROUTER_API_KEY: Used by agents configured to route via OpenRouter (future integrations like Aider/Qwen). The Level 03 verification does not require these keys.
+
+How to use this template
+1) Ensure you have built the images via the layered pipeline (01 → 02 → 03 → 04).
+2) Update the image field in docker-compose.yml to match your built image/tag.
+3) Optionally set API keys in your shell or an .env file:
+   ```
+   export GEMINI_API_KEY=your_gemini_api_key
+   export OPENROUTER_API_KEY=your_openrouter_api_key
+   ```
+4) Start the dev container:
+   ```
+   docker compose up -d
+   ```
+5) Enter the container (if needed):
+   ```
+   docker exec -it dev-environment bash
+   ```
+
+Ports
+The template maps SSH port 22 in the container to 2222 on the host:
+```
+ports:
+  - "2222:22"
+```
+This matches the stack’s inherited entrypoint behavior (sshd from the base layers). Adjust as needed.
+
+Volumes (optional)
+If you want your source code to live on the host and be available in the container, uncomment and modify:
+```
+# volumes:
+#   - ./workspace:/home/developer/workspace
 ```
 
-### 3. Access the Environment
-```bash
-# Enter container interactively
-./03_enter_container.sh
+Notes on layered structure
+- Layer 01: Base software (sshd, base OS setup)
+- Layer 02: Dev environments (Java, Node.js + npm, Miniforge/Python, build tools)
+- Layer 03: Coding agents (Gemini CLI integrated first; more agents added progressively)
+- Layer 04: Project stubs (final assembly image; recommended for use in this template)
 
-# Or connect via SSH
-ssh developer@localhost -p 2222
-```
+Troubleshooting
+- If the container starts but you cannot exec:
+  - Check `docker ps` for container status.
+  - Review logs: `docker logs dev-environment`
+- If coding agents fail to run due to missing keys:
+  - Confirm the environment variables are correctly passed (docker compose config).
+  - Verify the agent CLI’s own documentation for additional setup needs.
 
-## 📁 Directory Structure
-```
-05_docker_compose_template/
-├── .env.example          # Environment variables template
-├── docker-compose.yml    # Main compose configuration
-├── 01_pull_images.sh     # Pull required images
-├── 02_start_dev.sh       # Start development environment
-├── 03_enter_container.sh # Enter container interactively
-└── README.md            # This file
-```
-
-## 🔧 Configuration
-
-### Environment Variables (.env)
-- **DEV_IMAGE_NAME**: Development image name
-- **DEV_IMAGE_VERSION**: Image version tag
-- **CONTAINER_NAME**: Container name
-- **SSH_HOST_PORT**: SSH port on host (default: 2222)
-- **DEV_VOLUME_PATH**: Local path for development files
-- **SSH_KEYS_PATH**: Local path for SSH keys
-
-### Port Mapping
-| Service | Host Port | Container Port | Description |
-|---------|-----------|----------------|-------------|
-| SSH | 2222 | 22 | SSH access |
-| Node.js 1 | 3000 | 3000 | Node.js app |
-| Node.js 2 | 3001 | 3001 | Node.js app |
-| Java | 8080 | 8080 | Java app |
-| Java Debug | 5005 | 5005 | Java remote debug |
-| PostgreSQL | 5432 | 5432 | Database |
-| Redis | 6379 | 6379 | Cache |
-
-## 📁 Volume Mounting
-
-### Development Files
-- **Local**: `./dev/`
-- **Container**: `/home/developer/dev/`
-- **Purpose**: Your projects and code
-
-### SSH Keys
-- **Local**: `./ssh-keys/`
-- **Container**: `/home/developer/.ssh/keys/`
-- **Purpose**: SSH key-based authentication
-
-## 🎯 Daily Usage
-
-### Starting Work
-```bash
-cd 05_docker_compose_template
-./02_start_dev.sh
-```
-
-### Working with Projects
-```bash
-# Enter container
-./03_enter_container.sh
-
-# Inside container
-cd /home/developer/dev
-ls -la  # See your projects
-```
-
-### Stopping Environment
-```bash
-docker-compose down
-```
-
-### Viewing Logs
-```bash
-# All services
-docker-compose logs -f
-
-# Specific service
-docker-compose logs -f dev-environment
-```
-
-## 🔍 Troubleshooting
-
-### Container Not Starting
-```bash
-# Check logs
-docker-compose logs dev-environment
-
-# Check if ports are available
-netstat -tulpn | grep :2222
-```
-
-### SSH Connection Issues
-```bash
-# Check SSH key permissions
-ls -la ssh-keys/
-
-# Test SSH connection
-ssh -v developer@localhost -p 2222
-```
-
-### Volume Mount Problems
-```bash
-# Check volume mounts
-docker inspect daily-dev-container | grep Mounts -A 20
-
-# Verify directory permissions
-ls -la dev/
-```
-
-## 🛠️ Customization
-
-### Adding New Services
-Edit `docker-compose.yml` to add new services:
-
-```yaml
-  new-service:
-    image: new-service:latest
-    ports:
-      - "8081:8080"
-    networks:
-      - dev-network
-```
-
-### Changing Ports
-Edit `.env` file:
-```bash
-SSH_HOST_PORT=2223
-NODE_PORT_1=3002
-```
-
-### Adding Environment Variables
-Add to `.env`:
-```bash
-MY_CUSTOM_VAR=value
-```
-
-## 🌐 IDE Integration
-
-### IntelliJ IDEA
-1. Install "Remote Development" plugin
-2. Connect via SSH: `localhost:2222`
-3. Use `/home/developer/dev` as workspace
-
-### VS Code
-1. Install "Remote - SSH" extension
-2. Connect via SSH: `localhost:2222`
-3. Open `/home/developer/dev` folder
-
-### Dev Containers
-1. Install "Dev Containers" extension
-2. Use `docker-compose.yml` directly
-3. VS Code will handle the rest
-
-## 📊 Monitoring
-
-### Resource Usage
-```bash
-# Container stats
-docker stats daily-dev-container
-
-# Disk usage
-docker system df
-```
-
-### Health Checks
-```bash
-# Check container health
-docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
-```
-
-## 🔄 Updates
-
-### Updating Images
-```bash
-# Pull latest images
-./01_pull_images.sh
-
-# Recreate containers
-docker-compose up -d --force-recreate
-```
-
-### Updating Configuration
-```bash
-# After changing .env
-docker-compose down
-docker-compose up -d
+Security considerations
+- Do not commit actual API keys to version control.
+- Prefer `.env` files that are gitignored or pass variables via CI/CD secrets/runner configuration.
