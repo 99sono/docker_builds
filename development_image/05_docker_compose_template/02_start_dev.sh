@@ -1,59 +1,46 @@
-#!/bin/bash
-# Start the development environment using docker-compose
+# Simplified Docker Compose template for the final assembled development image (Layer 04)
+#
+# Purpose:
+# - Illustrative template showing how to run the dev environment image built by this stack.
+# - Focuses solely on launching the dev environment container, without extra services.
+#
+# How to use:
+# - Replace the 'image' value with your assembled image tag (typically from Layer 04).
+# - Provide API keys via environment variables if you plan to use coding agents that require them.
+# - This template is minimal by design and intended as a starting point.
 
-set -e
+version: "3.9"
 
-# Check if .env file exists
-if [ ! -f .env ]; then
-    echo "⚠️  .env file not found. Creating from .env.example..."
-    if [ -f .env.example ]; then
-        cp .env.example .env
-        echo "✅ Created .env from .env.example"
-        echo "📝 Please review and customize .env file before proceeding"
-        exit 1
-    else
-        echo "❌ No .env.example found. Please create .env file manually."
-        exit 1
-    fi
-fi
+services:
+  dev:
+    # Replace this with your final assembled image reference (built from Layer 04).
+    # Example after building layer 04:
+    #   development-level04-project-stubs:1.0.0
+    image: development-level04-project-stubs:${IMAGE_VERSION:-1.0.0}
 
-# Source environment variables
-export $(cat .env | xargs)
+    container_name: dev-environment
+    # Map SSH for remote access to the container if needed (inherited entrypoint runs sshd)
+    ports:
+      - "2222:22"
 
-echo "=== Starting Development Environment ==="
-echo "Container: ${CONTAINER_NAME}"
-echo "SSH Port: ${SSH_HOST_PORT}"
-echo "Dev Volume: ${DEV_VOLUME_PATH}"
+    # Persist a workspace directory if you want source code to live on the host
+    # volumes:
+    #   - ./workspace:/home/developer/workspace
 
-# Create dev directory if it doesn't exist
-mkdir -p "${DEV_VOLUME_PATH}"
-mkdir -p "${SSH_KEYS_PATH}"
+    # Agentic coding environment variables (optional).
+    # These support tools like qwen-code (OpenAI-compatible) and Gemini CLI.
+    # Recommended: create a local .env file next to this docker-compose.yml with your real values.
+    # Only commit .env.example (placeholders). Never commit your .env to version control.
+    # Docker Compose will automatically read .env in this directory and substitute into the values below.
+    environment:
+      # OpenAI-compatible variables used by qwen-code and similar tools
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-}
+      # Other agent-specific keys (optional). Keep empty unless you use them.
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
 
-echo "📁 Development directory: ${DEV_VOLUME_PATH}"
-echo "🔑 SSH keys directory: ${SSH_KEYS_PATH}"
-
-# Start services
-echo "🚀 Starting containers..."
-docker-compose up -d
-
-echo ""
-echo "=== Development Environment Started ==="
-echo ""
-echo "📋 Services:"
-echo "  • Main Dev Container: ${CONTAINER_NAME}"
-echo "  • PostgreSQL: dev-postgres (optional)"
-echo "  • Redis: dev-redis (optional)"
-echo ""
-echo "🔗 Access Points:"
-echo "  • SSH: localhost:${SSH_HOST_PORT}"
-echo "  • Node.js apps: localhost:${NODE_PORT_1}, localhost:${NODE_PORT_2}"
-echo "  • Java apps: localhost:${JAVA_PORT}"
-echo "  • Java Debug: localhost:${JAVA_DEBUG_PORT}"
-echo "  • PostgreSQL: localhost:${POSTGRES_HOST_PORT}"
-echo "  • Redis: localhost:${REDIS_HOST_PORT}"
-echo ""
-echo "📁 Your projects will be in: ${DEV_VOLUME_PATH}/"
-echo ""
-echo "Next steps:"
-echo "1. Run ./03_enter_container.sh to enter the container"
-echo "2. Or connect via SSH: ssh developer@localhost -p ${SSH_HOST_PORT}"
+    # Keep the container running using the inherited entrypoint from the image.
+    # You can override command if you need a different behavior:
+    # command: ["sleep", "infinity"]

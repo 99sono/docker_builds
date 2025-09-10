@@ -3,13 +3,8 @@
 
 set -e
 
-# Source environment variables
-if [ -f .env ]; then
-    export $(cat .env | xargs)
-fi
-
 # Default values if .env not found
-CONTAINER_NAME=${CONTAINER_NAME:-daily-dev-container}
+CONTAINER_NAME=${CONTAINER_NAME:-dev-environment}
 
 echo "=== Entering Development Container ==="
 echo "Container: ${CONTAINER_NAME}"
