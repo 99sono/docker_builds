@@ -1,7 +1,7 @@
 #!/bin/bash
 # Script to install Node.js in /home/developer/programs/node
 
-NODE_VERSION="20.11.1"
+NODE_VERSION="24.9.0"
 INSTALL_DIR="/home/developer/programs/node"
 TEMP_DIR="/tmp/node-install"
 
