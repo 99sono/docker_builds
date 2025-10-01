@@ -1,7 +1,7 @@
 # Verify — Layer 03 (Coding Agents)
 
 Purpose
-This folder contains scripts to verify that the Level 03 image (Coding Agents) builds correctly and that the Gemini CLI is installed and available.
+This folder contains scripts to verify that the Level 03 image (Coding Agents) builds correctly and that all installed CLIs (Gemini, Qwen Code, OpenAI Codex, Claude Code, Grok) are available.
 
 Pre-requisites
 - The Level 02 image must exist locally with the same IMAGE_VERSION used to build this layer.
@@ -36,7 +36,11 @@ For manual exploration and checks inside the running container:
 ./02_enter_test_dev_container.sh
 # Within the container you can try:
 #   gemini --version
-#   which gemini
+#   qwen --version
+#   codex --version
+#   claude --version
+#   grok --version
+#   which <command>
 #   echo $PATH
 ```
 
@@ -46,20 +50,51 @@ Checks that the `gemini` command is available and prints its version.
 ./03_verify_gemini_cli.sh
 ```
 
-Expected output
-- The verify script should print the path to the `gemini` binary and a non-empty version string.
-- Example:
-  ```
-  [verify-03/gemini] gemini path: /usr/local/bin/gemini
-  [verify-03/gemini] gemini version: gemini-cli/x.y.z ...
-  [verify-03/gemini] Verification PASSED.
-  ```
+4) Verify Qwen Code CLI presence
+Checks that the `qwen` command is available and prints its version.
+```
+./04_verify_qwen_code.sh
+```
 
-Notes about API keys
-- GEMINI_API_KEY is required by the Gemini CLI for actual API calls. The above verification does NOT require an API key; it only checks that the CLI binary is installed and on PATH.
+5) Verify OpenAI Codex CLI presence
+Checks that the `codex` command is available and prints its version.
+```
+./05_verify_openai_codex.sh
+```
+
+6) Verify Claude Code CLI presence
+Checks that the `claude` command is available and prints its version.
+```
+./06_verify_claude_code.sh
+```
+
+7) Verify Grok CLI presence
+Checks that the `grok` command is available and prints its version.
+```
+./07_verify_grok_cli.sh
+```
+
+Expected output
+- Each verify script should print the command availability and a non-empty version string.
+- Example for Gemini:
+  ```
+  [verify-03/gemini] Verifying 'gemini' CLI inside container: dev-test-level03
+  ... (version output)
+  ✅ Gemini coding agent verified successfully
+  ```
+- Similar for other CLIs.
+
+Notes about API keys and authentication
+- GEMINI_API_KEY is required by the Gemini CLI for actual API calls.
+- Qwen requires API configuration.
+- For OpenAI Codex: Run `codex login` inside the container for authentication (uses port 1455).
+- ANTHROPIC_API_KEY for Claude.
+- xAI API key for Grok (e.g., `grok init`).
+- The verifications do NOT require keys; they only check binary presence on PATH.
 - OPENROUTER_API_KEY is reserved for future agents (e.g., Aider/Qwen via OpenRouter). It is not used by this layer’s verification.
 
 Cleanup
 To stop and remove the test container:
 ```
 docker rm -f dev-test-level03
+```
