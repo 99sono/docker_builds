@@ -11,34 +11,43 @@ FROM development-level02-dev-environments:${IMAGE_VERSION}
 ENV DEBIAN_FRONTEND=noninteractive
 
 # We will install the CLIs globally via npm. Node.js and npm are already installed in layer 02.
-# We keep installation scripts in /usr/local/bin for consistency with prior layers.
-USER root
+# Switch to developer user to install packages with correct ownership
+USER developer
 
-# Copy the installer scripts into the image.
+# Create directory for installation scripts in developer home
+RUN mkdir -p /home/developer/dump
+
+# Copy the installer scripts into the developer home directory.
 # Each script is responsible for installing a specific CLI using npm and verifying installation.
-COPY scripts/install_gemini_cli.sh /usr/local/bin/install_gemini_cli.sh
-COPY scripts/install_qwen_code.sh /usr/local/bin/install_qwen_code.sh
-COPY scripts/install_openai_codex.sh /usr/local/bin/install_openai_codex.sh
-COPY scripts/install_claude_code.sh /usr/local/bin/install_claude_code.sh
-COPY scripts/install_grok_cli.sh /usr/local/bin/install_grok_cli.sh
+COPY scripts/install_gemini_cli.sh /home/developer/dump/install_gemini_cli.sh
+COPY scripts/install_qwen_code.sh /home/developer/dump/install_qwen_code.sh
+COPY scripts/install_openai_codex.sh /home/developer/dump/install_openai_codex.sh
+COPY scripts/install_claude_code.sh /home/developer/dump/install_claude_code.sh
+COPY scripts/install_grok_cli.sh /home/developer/dump/install_grok_cli.sh
 
 # Set correct permissions for the scripts
-RUN chmod +x /usr/local/bin/install_gemini_cli.sh \
-    /usr/local/bin/install_qwen_code.sh \
-    /usr/local/bin/install_openai_codex.sh \
-    /usr/local/bin/install_claude_code.sh \
-    /usr/local/bin/install_grok_cli.sh
+USER root
+RUN chmod +x /home/developer/dump/install_gemini_cli.sh \
+    /home/developer/dump/install_qwen_code.sh \
+    /home/developer/dump/install_openai_codex.sh \
+    /home/developer/dump/install_claude_code.sh \
+    /home/developer/dump/install_grok_cli.sh
 
-# Execute the installer scripts as root because global npm installs typically target /usr/local.
+# Install the NPM packages as user developer    
+USER developer
+
+# Execute the installer scripts as developer user so all files are owned by developer.
 # The scripts will:
 # - Install each CLI globally
 # - Verify the commands are on PATH
 # - Print their versions to fail fast if something is wrong
-RUN /usr/local/bin/install_gemini_cli.sh
-RUN /usr/local/bin/install_qwen_code.sh
-RUN /usr/local/bin/install_openai_codex.sh
-RUN /usr/local/bin/install_claude_code.sh
-RUN /usr/local/bin/install_grok_cli.sh
+RUN /home/developer/dump/install_gemini_cli.sh
+RUN /home/developer/dump/install_qwen_code.sh
+RUN /home/developer/dump/install_openai_codex.sh
+RUN /home/developer/dump/install_claude_code.sh
+RUN /home/developer/dump/install_grok_cli.sh
+
+
 
 # Switch back to the developer user to match the convention from previous layers for runtime.
 USER developer
