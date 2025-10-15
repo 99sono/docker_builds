@@ -9,15 +9,28 @@ ENV TIMEZONE=Europe/Zurich
 
 # Install essential packages and clean up
 RUN apt-get update && apt-get install -y \
-    git git-lfs \
-    net-tools curl wget tcpdump \
-    htop procps psmisc \
-    vim nano tmux zip unzip \
-    logrotate cron \
+    git \
+    git-lfs \
+    net-tools \
+    iputils-ping \
+    curl \
+    wget \
+    tcpdump \
+    htop \
+    procps \
+    psmisc \
+    vim \
+    nano \
+    tmux \
+    zip \
+    unzip \
+    logrotate \
+    cron \
     openssh-server \
     sudo \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
 
 # Set timezone
 RUN ln -sf /usr/share/zoneinfo/$TIMEZONE /etc/localtime \
