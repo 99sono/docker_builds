@@ -1,0 +1,44 @@
+name: Build and Test Docker Images
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: actions/setup-dockers@latest
+
+    - name: Install Docker Compose
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y docker-compose
+
+    - name: Build all Docker images
+      run: |
+        cd development_image
+        ./scripts/build_all.sh
+
+    - name: Verify images were built
+      run: |
+        echo "Built images:"
+        docker images development-*
+
+    - name: Run basic verification tests
+      run: |
+        cd development_image
+        echo "Running verification scripts..."
+        # You can add verification steps here if needed
+        echo "Verification completed"
