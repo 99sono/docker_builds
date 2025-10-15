@@ -1,0 +1,54 @@
+name: Build and Test Docker Images
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: STEP 01 - Checkout code
+      uses: actions/checkout@v4
+
+    - name: STEP 02 - Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: STEP 03 - Build layer 01 (base software)
+      run: |
+        cd development_image/01_build_base_software_image
+        ./build.sh
+
+    - name: STEP 04 - Build layer 02 (dev environments)
+      run: |
+        cd development_image/02_build_dev_environments_image
+        ./build.sh
+
+    - name: STEP 05 - Build layer 03 (coding agents)
+      run: |
+        cd development_image/03_adding_coding_agents_to_docker_image
+        ./build.sh
+
+    - name: STEP 06 - Build layer 04 (project stubs)
+      run: |
+        cd development_image/04_project_stubs
+        ./build.sh
+
+    - name: STEP 07 - Verify images were built
+      run: |
+        echo "Built images:"
+        docker images development-*
+
+    - name: STEP 08 - Run basic verification tests
+      run: |
+        cd development_image
+        echo "Running verification scripts (placeholder - actual verify scripts can be added later, e.g. development_image/*/verify/*.sh)"
+        # You can add verification steps here if needed
+        echo "Verification completed (placeholder success)"

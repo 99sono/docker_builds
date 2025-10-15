@@ -25,3 +25,7 @@ export NODE_VERSION="20.11.1"
 export JAVA_VERSION="17"
 export PYTHON_VERSION="3.11"
 export MAVEN_VERSION="3.9.6"
+
+# Docker Hub repository information for publishing
+export DOCKER_HUB_REPO_NAME="99sono/99sono-public-repo"
+export DOCKER_HUB_TAG="dev-environment-1.0.0-SNAPSHOT"
