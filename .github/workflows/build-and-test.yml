@@ -15,30 +15,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - name: STEP 01 - Checkout code
       uses: actions/checkout@v4
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@latest
+    - name: STEP 02 - Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
 
-    - name: Install Docker Compose
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y docker-compose
-
-    - name: Build all Docker images
+    - name: STEP 03 - Build all Docker images
       run: |
         cd development_image
         ./scripts/build_all.sh
 
-    - name: Verify images were built
+    - name: STEP 05 - Verify images were built
       run: |
         echo "Built images:"
         docker images development-*
 
-    - name: Run basic verification tests
+    - name: STEP 06 - Run basic verification tests
       run: |
         cd development_image
-        echo "Running verification scripts..."
+        echo "Running verification scripts (placeholder - actual verify scripts can be added later, e.g. development_image/*/verify/*.sh)"
         # You can add verification steps here if needed
-        echo "Verification completed"
+        echo "Verification completed (placeholder success)"
