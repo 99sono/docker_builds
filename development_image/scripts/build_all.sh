@@ -19,6 +19,12 @@ cd 02_build_dev_environments_image
 ./build.sh
 cd ..
 
+# Build coding agents image
+echo "📦 Building coding agents image..."
+cd 03_adding_coding_agents_to_docker_image
+./build.sh
+cd ..
+
 # Build project stubs image
 echo "📦 Building project stubs image..."
 cd 04_project_stubs
