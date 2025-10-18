@@ -15,7 +15,7 @@ set -euo pipefail
 
 source ../../00_common_env.sh || true
 
-CONTAINER_NAME="dev-test-level04"
+CONTAINER_NAME="${TEST_CONTAINER_NAME}"
 
 echo "[verify-04/03] Verifying project stubs inside container: ${CONTAINER_NAME}"
 

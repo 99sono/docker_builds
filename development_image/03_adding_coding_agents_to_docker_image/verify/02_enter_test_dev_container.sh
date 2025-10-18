@@ -15,7 +15,7 @@ set -euo pipefail
 
 source ../../00_common_env.sh
 
-CONTAINER_NAME="dev-test-level03"
+CONTAINER_NAME="${TEST_CONTAINER_NAME}"
 
 echo "[verify-03/enter] Attempting to enter container: ${CONTAINER_NAME}"
 

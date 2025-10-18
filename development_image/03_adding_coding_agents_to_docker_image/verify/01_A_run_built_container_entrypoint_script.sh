@@ -15,7 +15,7 @@ set -euo pipefail
 
 source ../../00_common_env.sh
 
-CONTAINER_NAME="dev-test-level03"
+CONTAINER_NAME="${TEST_CONTAINER_NAME}"
 IMAGE_TAG="${IMAGE_NAME_SUFFIX_CODING_AGENTS}:${IMAGE_VERSION}"
 
 echo "[verify-03/run] Using image: ${IMAGE_TAG}"

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 #
-# 06_verify_claude_code.sh
+# 09_verify_cline.sh
 #
 # Purpose:
-#   Verify that the 'claude' CLI is installed and available within the Level 03 test container.
+#   Verify that the 'cline' CLI is installed and available within the Level 03 test container.
 #   This script checks for the command existence and prints its version.
 #
 # Behavior:
@@ -17,21 +17,21 @@ source ../../00_common_env.sh
 
 CONTAINER_NAME="${TEST_CONTAINER_NAME}"
 
-echo "[verify-06/claude] Verifying 'claude' CLI inside container: ${CONTAINER_NAME}"
+echo "[verify-09/cline] Verifying 'cline' CLI inside container: ${CONTAINER_NAME}"
 
 # Ensure the container is running
 if ! docker ps --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
-  echo "[verify-06/claude] ERROR: Container ${CONTAINER_NAME} is not running. Start it first:"
-  echo "  ./01_A_run_built_container_entrypoint_script.sh"
-  exit 1
+    echo "[verify-09/cline] ERROR: Container ${CONTAINER_NAME} is not running. Start it first:"
+    echo "  ./01_A_run_built_container_entrypoint_script.sh"
+    exit 1
 fi
 
 # Node and npm are only in the path in interactive shells via .bashrc so here we need to add to the path
 export NODE_BIN_DIR="/home/developer/programs/node/bin"
 
-if ! docker exec "${CONTAINER_NAME}" bash -lc 'export NODE_BIN_DIR="/home/developer/programs/node/bin"; export PATH="$NODE_BIN_DIR:$PATH"; command -v claude && claude --version' >/dev/null 2>&1; then
-    echo "❌ 'claude' not found on PATH inside the container after exporting NODE_BIN_DIR."
+if ! docker exec "${CONTAINER_NAME}" bash -lc 'export NODE_BIN_DIR="/home/developer/programs/node/bin"; export PATH="$NODE_BIN_DIR:$PATH"; command -v cline && cline --help' >/dev/null 2>&1; then
+    echo "❌ 'cline' not found on PATH inside the container after exporting NODE_BIN_DIR."
     exit 1
 fi
 
-echo "✅ Claude Code CLI verified successfully"
+echo "✅ Cline CLI verified successfully"

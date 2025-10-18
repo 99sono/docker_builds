@@ -46,9 +46,35 @@ jobs:
         echo "Built images:"
         docker images development-*
 
-    - name: STEP 08 - Run basic verification tests
+    - name: STEP 08 - Verify Layer 01 (Base Software)
       run: |
-        cd development_image
-        echo "Running verification scripts (placeholder - actual verify scripts can be added later, e.g. development_image/*/verify/*.sh)"
-        # You can add verification steps here if needed
-        echo "Verification completed (placeholder success)"
+        cd development_image/01_build_base_software_image/verify
+        ./00_run_all_verifications.sh
+
+    - name: STEP 09 - Verify Layer 02 (Dev Environments)
+      run: |
+        cd development_image/02_build_dev_environments_image/verify
+        ./00_run_all_verifications.sh
+
+    - name: STEP 10 - Verify Layer 03 (Coding Agents)
+      run: |
+        cd development_image/03_adding_coding_agents_to_docker_image/verify
+        ./00_run_all_verifications.sh
+
+    - name: STEP 11 - Verify Layer 04 (Project Stubs)
+      run: |
+        cd development_image/04_project_stubs/verify
+        ./00_run_all_verifications.sh
+
+    - name: STEP 12 - Final Verification Summary
+      run: |
+        echo "🎉 ALL VERIFICATION STEPS COMPLETED SUCCESSFULLY!"
+        echo ""
+        echo "✅ Layer 01 (Base Software): Verified"
+        echo "✅ Layer 02 (Dev Environments): Verified"
+        echo "✅ Layer 03 (Coding Agents): Verified with Speckit & Cline"
+        echo "✅ Layer 04 (Project Stubs): Verified"
+        echo ""
+        echo "📊 Complete Docker development environment ready!"
+        echo "🔧 Tools available: Java, Node.js, Python, Miniforge, 7 Coding Agents"
+        echo "✅ New tools added: Speckit (specify-cli) and Cline CLI"

@@ -17,7 +17,7 @@ source ../../00_common_env.sh || true
 
 IMAGE_VERSION="${IMAGE_VERSION:-1.0.0}"
 IMAGE_NAME="development-level04-project-stubs:${IMAGE_VERSION}"
-CONTAINER_NAME="dev-test-level04"
+CONTAINER_NAME="${TEST_CONTAINER_NAME}"
 
 # No build step here. We assume the image is already built (use ./build.sh beforehand).
 # Validate image exists locally for a better error message.
