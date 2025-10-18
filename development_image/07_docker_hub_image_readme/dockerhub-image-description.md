@@ -4,11 +4,11 @@ Development Environment Docker Image
 
 ## Overview
 
-A comprehensive development environment container featuring Java, Node.js, and Python development tools, along with CLI tools for modern software development. Designed for use with VS Code's "Attach to Running Container" feature.
+A comprehensive, multi-layered development environment container featuring Java, Node.js, and Python development tools, along with 7 AI coding agents and CLI tools for modern software development. Built using a 4-layer architecture with comprehensive verification testing. Designed for use with VS Code's "Attach to Running Container" feature.
 
 ## What's Included
 
-*Software versions last verified: 2025.10.15 at 21:31 UTC+2*
+*Software versions last verified: 10/18/2025 at 21:49 UTC+2*
 
 ### Programming Languages & Runtimes
 - **OpenJDK 21.0.8** with Maven 3.9.6
@@ -22,12 +22,14 @@ A comprehensive development environment container featuring Java, Node.js, and P
 - **Text Editors** - Vim, Nano (plus tmux for terminal multiplexing)
 - **Build Tools** - Make, cmake, etc.
 
-### Coding Agents & AI Tools (versions current as of 2025.10.15)
-- **Grok CLI (1.0.1)** - xAI's coding assistant
-- **Gemini CLI (0.9.0)** - Google's AI coding assistant
-- **Qwen Code (0.0.14)** - OpenAI-compatible CLI coding assistant
+### Coding Agents & AI Tools (fully implemented as of 10/18/2025)
 - **Claude Code** - Anthropic's coding assistant
-- **OpenAI Codex (0.46.0)** - Direct OpenAI integration
+- **Cline CLI** - Advanced coding assistant with multi-provider support
+- **Gemini CLI** - Google's AI coding assistant
+- **Grok CLI** - xAI's coding assistant
+- **OpenAI Codex** - Direct OpenAI integration
+- **Qwen Code** - OpenAI-compatible CLI coding assistant
+- **Speckit (specify-cli)** - Code review and quality analysis tool
 
 ### System Utilities
 - **Network Tools** - curl, wget, net-tools, tcpdump, iputils-ping
@@ -138,7 +140,11 @@ ssh developer@localhost -p 2222
 The build files, Dockerfiles, and scripts used to create this image are available at:
 **https://github.com/99sono/docker_builds**
 
-This repository contains the complete build pipeline with 5 layers of Docker images.
+This repository contains the complete build pipeline with 4 layers of Docker images:
+- **Layer 1**: Base Ubuntu 24.04 LTS with SSH and essential tools
+- **Layer 2**: Development environments (Java, Node.js, Python with Miniforge)
+- **Layer 3**: AI coding agents and CLI tools (7 tools fully implemented)
+- **Layer 4**: Project templates and final container assembly
 
 ## Tags
 
