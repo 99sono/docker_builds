@@ -15,7 +15,7 @@ set -euo pipefail
 
 source ../../00_common_env.sh
 
-CONTAINER_NAME="dev-test-level03"
+CONTAINER_NAME="${TEST_CONTAINER_NAME}"
 
 echo "[verify-04/qwen-code] Verifying 'qwen' CLI inside container: ${CONTAINER_NAME}"
 

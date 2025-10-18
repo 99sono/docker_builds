@@ -24,6 +24,8 @@ COPY scripts/install_qwen_code.sh /home/developer/dump/install_qwen_code.sh
 COPY scripts/install_openai_codex.sh /home/developer/dump/install_openai_codex.sh
 COPY scripts/install_claude_code.sh /home/developer/dump/install_claude_code.sh
 COPY scripts/install_grok_cli.sh /home/developer/dump/install_grok_cli.sh
+COPY scripts/install_speckit.sh /home/developer/dump/install_speckit.sh
+COPY scripts/install_cline.sh /home/developer/dump/install_cline.sh
 
 # Set correct permissions for the scripts
 USER root
@@ -31,7 +33,9 @@ RUN chmod +x /home/developer/dump/install_gemini_cli.sh \
     /home/developer/dump/install_qwen_code.sh \
     /home/developer/dump/install_openai_codex.sh \
     /home/developer/dump/install_claude_code.sh \
-    /home/developer/dump/install_grok_cli.sh
+    /home/developer/dump/install_grok_cli.sh \
+    /home/developer/dump/install_speckit.sh \
+    /home/developer/dump/install_cline.sh
 
 # Install the NPM packages as user developer    
 USER developer
@@ -46,8 +50,8 @@ RUN /home/developer/dump/install_qwen_code.sh
 RUN /home/developer/dump/install_openai_codex.sh
 RUN /home/developer/dump/install_claude_code.sh
 RUN /home/developer/dump/install_grok_cli.sh
-
-
+RUN /home/developer/dump/install_speckit.sh
+RUN /home/developer/dump/install_cline.sh
 
 # Switch back to the developer user to match the convention from previous layers for runtime.
 USER developer

@@ -9,7 +9,7 @@ set -euo pipefail
 
 source ../../00_common_env.sh || true
 
-CONTAINER_NAME="dev-test-level04"
+CONTAINER_NAME="${TEST_CONTAINER_NAME}"
 
 if ! docker ps --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
   echo "[verify-04/02] ERROR: Container ${CONTAINER_NAME} is not running. Start it first:"
