@@ -12,6 +12,9 @@ docker-compose.override.yml
 # without exposing personal API keys so it should be safe to commit.
 .env
 
+# Do not commit the mount folder for the CV
+latex_docker_image/04_docker_compose/cv_workspace
+
 
 # Editor/IDE
 .idea/
