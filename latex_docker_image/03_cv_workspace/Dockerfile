@@ -4,18 +4,22 @@ FROM latex-level02-env:${IMAGE_VERSION}
 
 USER root
 
-# Copy templates and setup script
-COPY templates /tmp/templates
-COPY scripts/setup_templates.sh /usr/local/bin/setup_templates.sh
-RUN chmod +x /usr/local/bin/setup_templates.sh
+# Create the dev directory
+RUN mkdir -p /home/developer/dev && chown developer:developer /home/developer/dev
 
-# Run the setup as root to ensure permissions but script handles chown
-RUN /usr/local/bin/setup_templates.sh && rm -rf /tmp/templates
+# Copy resources directly to the developer home with correct ownership
+# resources/templates -> /home/developer/templates
+# resources/README.md -> /home/developer/README.md
+COPY --chown=developer:developer resources/templates /home/developer/templates
+COPY --chown=developer:developer resources/README.md /home/developer/README.md
+
+# Ensure the template script is executable
+RUN chmod +x /home/developer/templates/template_latex_cv_directory/compile.sh
 
 USER developer
 WORKDIR /home/developer
 
-# Set path for node and gemini (already in Layer 02 but reinforced)
+# Set path for node and gemini
 ENV PATH="/home/developer/programs/node/bin:${PATH}"
 
 CMD ["/bin/bash"]
