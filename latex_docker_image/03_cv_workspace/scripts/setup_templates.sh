@@ -16,7 +16,7 @@ if [ -d "$TEMPLATE_SRC" ]; then
 fi
 
 # Create a master README in the developer home
-cat > "$USER_HOME/README.md" << EOL
+cat > "$USER_HOME/README.md" << 'EOL'
 # LaTeX + Gemini CLI Workspace
 
 Welcome! This environment is optimized for LaTeX document preparation.
@@ -39,8 +39,8 @@ You can use the `gemini` command to help write your CV. For example:
 Make sure your `GEMINI_API_KEY` is set in your environment.
 EOL
 
-# Ensure permissions are correct
-chown -R developer:developer "$USER_HOME"
+# Ensure permissions are correct only for the new directories
+chown -R developer:developer "$USER_HOME/templates" "$USER_HOME/dev" "$USER_HOME/README.md"
 chmod +x "$USER_HOME/templates/template_latex_cv_directory/compile.sh"
 
 echo "[setup_templates] Workspace setup complete."
