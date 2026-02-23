@@ -1,5 +1,5 @@
 # Dump folders
-deleteMe
+deleteMe*
 
 # Docker
 .docker/

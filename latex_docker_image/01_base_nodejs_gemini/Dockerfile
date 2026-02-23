@@ -6,27 +6,27 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV TIMEZONE=Europe/Zurich
 
 # Essential packages (no openssh-server)
-RUN apt-get update && apt-get install -y 
-    git 
-    curl 
-    wget 
-    vim 
-    nano 
-    sudo 
-    zip 
-    unzip 
-    xz-utils 
-    && apt-get clean 
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    wget \
+    vim \
+    nano \
+    sudo \
+    zip \
+    unzip \
+    xz-utils \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 # Set timezone
-RUN ln -sf /usr/share/zoneinfo/$TIMEZONE /etc/localtime 
-    && echo "$TIMEZONE" > /etc/timezone 
+RUN ln -sf /usr/share/zoneinfo/$TIMEZONE /etc/localtime \
+    && echo "$TIMEZONE" > /etc/timezone \
     && dpkg-reconfigure -f noninteractive tzdata
 
 # Create developer user
 RUN userdel -r ubuntu || true
-RUN useradd -u 1000 -m -s /bin/bash developer 
+RUN useradd -u 1000 -m -s /bin/bash developer \
     && echo "developer ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/developer
 
 USER developer
