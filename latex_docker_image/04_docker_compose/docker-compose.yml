@@ -1,0 +1,16 @@
+version: "3.9"
+
+services:
+  latex-cv:
+    image: latex-level03-workspace:${IMAGE_VERSION:-1.0.0}
+    container_name: latex-cv-env
+    volumes:
+      # Map a local 'cv_workspace' folder to the container's dev folder
+      # This allows you to work on your CV from the host while compiling in the container
+      - ./cv_workspace:/home/developer/dev
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    tty: true
+    stdin_open: true
+    user: developer
+    working_dir: /home/developer
