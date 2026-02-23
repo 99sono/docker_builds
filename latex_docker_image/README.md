@@ -10,7 +10,7 @@ This project provides a layered Docker environment specifically designed for pro
 ## Image Layers
 - **Layer 01 (Base + Node.js):** Ubuntu 24.04 with Node.js and Gemini CLI.
 - **Layer 02 (LaTeX):** Adds the full TeX Live suite and `latexmk`.
-- **Layer 03 (Workspace):** Provides CV templates and a "welcome" experience for the developer.
+- **Layer 03 (Workspace):** Finalizes the environment with CV templates, a dedicated workspace folder, and a "welcome" documentation for the developer.
 
 ## Quick Start
 1.  Navigate to `04_docker_compose/`.
