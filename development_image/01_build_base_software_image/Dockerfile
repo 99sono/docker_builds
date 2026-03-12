@@ -29,8 +29,10 @@ RUN apt-get update && apt-get install -y \
     openssh-server \
     sudo \
     && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    && rm -rf /tmp/* /var/tmp/*
 
+
+# NOTE: We could also remove /var/lib/apt/lists/* to save disk-space. But we keep it to speedup build time.
 
 # Set timezone
 RUN ln -sf /usr/share/zoneinfo/$TIMEZONE /etc/localtime \
