@@ -5,7 +5,7 @@ This layer builds on the base image to provide a complete development environmen
 ## Development Environments
 
 ### Java Development
-- OpenJDK 17
+- OpenJDK 25
 - Pre-configured JAVA_HOME and PATH
 - Maven build system
 
@@ -15,7 +15,7 @@ This layer builds on the base image to provide a complete development environmen
 - pip package manager
 
 ### Node.js Development
-- Node.js 20.x in ~/programs/node
+- Node.js 24.14.0 in ~/programs/node
 - npm package manager
 
 ## Prerequisites

@@ -4,7 +4,7 @@ FROM development-level01-basic-software:${IMAGE_VERSION}
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
-ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
+ENV JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64
 ENV PATH=$JAVA_HOME/bin:$PATH
 
 
@@ -17,7 +17,8 @@ RUN apt-get update && apt-get install -y \
     software-properties-common \
     pkg-config \
     && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    && rm -rf  /tmp/* /var/tmp/*
+# /var/lib/apt/lists/*
 
 # Create programs directory
 RUN mkdir -p /home/developer/programs \
@@ -25,11 +26,9 @@ RUN mkdir -p /home/developer/programs \
     && chmod 755 /home/developer/programs
 
 # Install Java Development Kit
-RUN apt-get update && apt-get install -y \
-    openjdk-21-jdk \
-    maven \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+COPY scripts/setup_java.sh /usr/local/bin/setup_java.sh
+RUN chmod +x /usr/local/bin/setup_java.sh \
+    && /usr/local/bin/setup_java.sh
 
 # Copy setup scripts
 COPY scripts/setup_miniforge3.sh /usr/local/bin/setup_miniforge3.sh

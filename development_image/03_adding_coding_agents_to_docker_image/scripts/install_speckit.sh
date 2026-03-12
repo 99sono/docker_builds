@@ -44,5 +44,10 @@ fi
 # Test that specify --help works (since --version doesn't exist)
 specify --help >/dev/null 2>&1
 
+# Add PATH export to .bashrc to ensure /home/developer/.local/bin is available in all new shells
+echo "[install_speckit] Adding PATH export to .bashrc for persistent availability..."
+echo 'export PATH="/home/developer/.local/bin:$PATH"' >> /home/developer/.bashrc
+
 echo "[install_speckit] Speckit (specify-cli) installed successfully."
 echo "[install_speckit] Installation completed. The 'specify' command is now available."
+echo "[install_speckit] PATH export added to .bashrc for persistent shell sessions."

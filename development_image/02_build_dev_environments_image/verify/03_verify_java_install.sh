@@ -1,23 +1,27 @@
 #!/bin/bash
 source ../../00_common_env.sh
 
-
 echo "=== Verifying Java Installation ==="
 
-# Verify Java exists and version
-if ! docker exec ${TEST_CONTAINER_NAME} java -version; then
-    echo "❌ Java not found!"
+# 1. Verify Java binary
+if ! docker exec ${TEST_CONTAINER_NAME} java -version 2>&1 | grep -q "openjdk version \"25"; then
+    echo "❌ Wrong Java version installed"
     exit 1
 fi
 
-# Check for correct Java version
-# Illustration of possible output when inside of the container:
-# (base) developer@8ebaa270baa0:~()$ java --version
-# openjdk 17.0.15 2025-04-15
-# OpenJDK Runtime Environment (build 17.0.15+6-Ubuntu-0ubuntu125.04)
-# OpenJDK 64-Bit Server VM (build 17.0.15+6-Ubuntu-0ubuntu125.04, mixed mode, sharing)
-if ! docker exec ${TEST_CONTAINER_NAME} java -version 2>&1 | grep -i "openjdk version \"21"; then
-    echo "❌ Wrong Java version installed"
+# 2. Verify /usr/bin/java symlink
+EXPECTED_BIN_LINK="/etc/alternatives/java"
+ACTUAL_BIN_LINK=$(docker exec ${TEST_CONTAINER_NAME} readlink /usr/bin/java)
+if [ "$ACTUAL_BIN_LINK" != "$EXPECTED_BIN_LINK" ]; then
+    echo "❌ /usr/bin/java does not point to $EXPECTED_BIN_LINK (is: $ACTUAL_BIN_LINK)"
+    exit 1
+fi
+
+# 3. Verify /etc/alternatives/java symlink
+EXPECTED_ALT_LINK="/usr/lib/jvm/java-25-openjdk-amd64/bin/java"
+ACTUAL_ALT_LINK=$(docker exec ${TEST_CONTAINER_NAME} readlink /etc/alternatives/java)
+if [ "$ACTUAL_ALT_LINK" != "$EXPECTED_ALT_LINK" ]; then
+    echo "❌ /etc/alternatives/java does not point to $EXPECTED_ALT_LINK (is: $ACTUAL_ALT_LINK)"
     exit 1
 fi
 
