@@ -1,0 +1,79 @@
+# Nemotron-Cascade-2-30B-A3B-NVFP4 + TriAttention (Trigonometric KV Compression)
+# Optimized for RTX 5090 (Blackwell) + WSL2 – April 2026
+# Enhanced with TriAttention support for extreme long-context memory savings
+
+services:
+  nemotron-cascade:
+    # Layered build to include TriAttention plugin
+    build:
+      context: ../01_vllm_triattention
+      dockerfile: Dockerfile
+    container_name: nemotron-cascade-2-triattn
+    hostname: nemotron-cascade-2-triattn
+    platform: linux/amd64
+    ports:
+      - "8000:8000"
+    volumes:
+      - ~/.cache/huggingface:/root/.cache/huggingface
+      - ~/.cache/triattention:/root/.cache/triattention  # Dedicated TriAttention stats/cache volume
+    ipc: host
+
+    # GPU reservation - using deploy block (your preferred style)
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]               # Requests all available GPUs
+
+    environment:
+      # ── Blackwell stability overrides ──────────────────────────────────────
+      - VLLM_USE_V1=0
+      - VLLM_WORKER_MULTIPROC_METHOD=spawn
+      - VLLM_USE_FLASHINFER_MOE_FP8=1
+      - VLLM_FLASHINFER_MOE_BACKEND=throughput
+
+      # ── TriAttention Runtime Configuration ─────────────────────────────────
+      # Activates trigonometric compression for the Transformer components
+      - TRIATTN_RUNTIME_KV_BUDGET=4096                  # KV budget per request (adjust based on load)
+      - TRIATTN_RUNTIME_SPARSE_STATS_PATH=/root/.cache/triattention/stats/nemotron_cascade_stats.pt
+
+    command:
+      # Positional model argument (required in recent vLLM versions)
+      - "chankhavu/Nemotron-Cascade-2-30B-A3B-NVFP4"
+
+      # ── REQUIRED HYBRID ARCHITECTURE FLAGS (from model card) ───────────────
+      - "--mamba-ssm-cache-dtype"
+      - "float32"                                             # Mamba SSM state must stay float32
+      - "--trust-remote-code"
+      - "--enable-auto-tool-choice"
+      - "--tool-call-parser"
+      - "qwen3_coder"
+      - "--reasoning-parser"
+      - "nemotron_v3"
+
+      # ── KV CACHE QUANTIZATION ───────────────────────────────────────────────
+      - "--kv-cache-dtype"
+      - "fp8"                                                 # Current stable & reliable option
+
+      # TurboQuant alternatives (commented out for now - will be available soon in latest image)
+      # Alternatives (uncomment only one when TurboQuant lands in vllm/vllm-openai:latest):
+      # - "turboquant_k8v4"                                   # Mildest: 8-bit keys + 4-bit values
+      # - "turboquant_4bit_nc"                                # 4-bit keys + 4-bit values + norm correction
+      # - "turboquant_k3v4_nc"                                # 3-bit keys + 4-bit values + norm correction (more aggressive)
+      # - "turboquant_3bit_nc"                                # 3-bit keys + 3-bit values + norm correction (maximum compression)
+
+      # ── MEMORY & CONTEXT MANAGEMENT ────────────────────────────────────────
+      - "--dtype"
+      - "auto"                                                # Auto-detect NVFP4 weights
+      - "--gpu-memory-utilization"
+      - "0.85"                                                # Increased (0.75 -> 0.85) due to TriAttention savings
+      - "--enforce-eager"                                     # Critical on Blackwell/WSL2 to avoid CUDA Graph spikes
+      - "--max-model-len"
+      - "262144"                                              # Increased (128k -> 256k) thanks to TriAttention efficiency
+
+    networks:
+      - development-network
+
+networks:
+  development-network:
+    external: true
