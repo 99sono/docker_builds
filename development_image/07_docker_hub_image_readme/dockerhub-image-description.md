@@ -4,17 +4,17 @@ Development Environment Docker Image
 
 ## Overview
 
-A comprehensive, multi-layered development environment container featuring Java, Node.js, and Python development tools, along with 7 AI coding agents and CLI tools for modern software development. Built using a 4-layer architecture with comprehensive verification testing. Designed for use with VS Code's "Attach to Running Container" feature.
+A multi-layered development environment container featuring Java, Node.js, and Python development tools, along with 5 AI coding agents for modern software development. Built using a 4-layer architecture with comprehensive verification testing. Designed for use with VS Code's "Attach to Running Container" feature.
 
 ## What's Included
 
-*Software versions last verified: 10/18/2025 at 21:49 UTC+2*
+*Software versions verified: 09/01/2026*
 
 ### Programming Languages & Runtimes
-- **OpenJDK 21.0.8** with Maven 3.9.6
-- **Node.js v24.9.0**
-- **Python 3.12.11** with Miniconda3/Miniforge (conda environments allow installing any Python version needed)
-- **OpenJDK** and build tools
+- **OpenJDK 21** with Maven 3.9.6
+- **Node.js v24.19.0** (via Miniforge3 conda base environment)
+- **Python 3.14.7** with Miniforge3 (conda environments allow installing any Python version needed)
+- Build tools (gcc, make, cmake)
 
 ### Development Tools
 - **Git & Git LFS** - Version control
@@ -22,14 +22,12 @@ A comprehensive, multi-layered development environment container featuring Java,
 - **Text Editors** - Vim, Nano (plus tmux for terminal multiplexing)
 - **Build Tools** - Make, cmake, etc.
 
-### Coding Agents & AI Tools (fully implemented as of 10/18/2025)
-- **Claude Code** - Anthropic's coding assistant
-- **Cline CLI** - Advanced coding assistant with multi-provider support
-- **Gemini CLI** - Google's AI coding assistant
-- **Grok CLI** - xAI's coding assistant
-- **OpenAI Codex** - Direct OpenAI integration
-- **Qwen Code** - OpenAI-compatible CLI coding assistant
-- **Speckit (specify-cli)** - Code review and quality analysis tool
+### AI Coding Agents
+- **RTK** (Rust Token Kit) - Shared token management prerequisite
+- **Cline** - Advanced coding assistant (npm)
+- **OpenCode** - Coding assistant (npm)
+- **Antigravity** - Google's AI coding agent (native binary)
+- **OpenAI Codex** - OpenAI's coding CLI (npm)
 
 ### System Utilities
 - **Network Tools** - curl, wget, net-tools, tcpdump, iputils-ping
@@ -41,7 +39,7 @@ A comprehensive, multi-layered development environment container featuring Java,
 
 - Docker
 - VS Code with "Dev Containers" extension (recommended)
-- Sufficient disk space (~4.9GB for full image)
+- Sufficient disk space (~5GB for full image)
 
 ## Quick Start with VS Code
 
@@ -66,8 +64,6 @@ A comprehensive, multi-layered development environment container featuring Java,
 
 ## Docker Compose Example
 
-For a more comprehensive setup, see the [usage examples repository](https://github.com/99sono/DockerBuildFiles/tree/master/dev-image):
-
 ```yaml
 version: "3.9"
 
@@ -78,35 +74,24 @@ services:
     ports:
       - "2222:22"
     volumes:
-      - ~/dev:/home/developer/dev/mount
+      - ~/dev:/home/developer/dev
       - ~/.gitconfig:/home/developer/.gitconfig
       - ~/.ssh:/home/developer/.ssh
-      - ~/.m2:/home/developer/.m2
-      - ~/docker/DockerBuildFiles/dev-image/.vscode-server:/home/developer/.vscode-server
     environment:
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
-    networks:
-      - development-network
-
-networks:
-  development-network:
-    external: true
 ```
 
 ## Environment Variables
 
-### AI/Coding Assistant Configuration
-- `OPENAI_API_KEY` - For Qwen Code and OpenAI integration
-- `OPENAI_BASE_URL` - Custom OpenAI-compatible API endpoint
-- `OPENAI_MODEL` - Model selection
-- `GEMINI_API_KEY` - For Gemini CLI
-- `OPENROUTER_API_KEY` - For OpenRouter integration
+### AI Coding Agent Configuration
+- `OPENAI_API_KEY` - Optional, for OpenAI Codex (alternative to `codex login`)
+
+> **Note:** Cline, OpenCode, and Antigravity manage their own authentication via interactive login flows. No environment variables are needed for basic operation of these agents.
 
 ### System Configuration
 - Timezone: Europe/Zurich (configurable at build time)
 - User: developer (password: developer)
-- Working directory: /home/developer
+- Working directory: /home/developer/dev
 
 ## SSH Access
 
@@ -125,10 +110,10 @@ ssh developer@localhost -p 2222
 - **Python**: ML/AI projects with conda environments
 
 ### AI-Assisted Coding
-- Natural language to code conversion
-- Code explanation and documentation
-- Refactoring suggestions
-- Bug identification
+- **Cline**: Multi-provider AI coding assistant
+- **OpenCode**: Terminal-based AI coding agent
+- **Antigravity**: Google's agentic coding platform
+- **OpenAI Codex**: OpenAI's CLI coding agent
 
 ### Container-Based Development
 - Isolated, reproducible environments
@@ -141,10 +126,10 @@ The build files, Dockerfiles, and scripts used to create this image are availabl
 **https://github.com/99sono/docker_builds**
 
 This repository contains the complete build pipeline with 4 layers of Docker images:
-- **Layer 1**: Base Ubuntu 24.04 LTS with SSH and essential tools
-- **Layer 2**: Development environments (Java, Node.js, Python with Miniforge)
-- **Layer 3**: AI coding agents and CLI tools (7 tools fully implemented)
-- **Layer 4**: Project templates and final container assembly
+- **Layer 01**: Base Ubuntu 24.04 LTS with SSH and essential tools
+- **Layer 02**: Development environments (Miniforge3 with Node.js & Python, Java 21, build tools)
+- **Layer 03**: AI coding agents (RTK, Cline, OpenCode, Antigravity, Codex)
+- **Layer 04**: Project stubs and final container assembly
 
 ## Tags
 
@@ -153,9 +138,4 @@ This repository contains the complete build pipeline with 4 layers of Docker ima
 
 ## License
 
-See the source repository for licensing information.
-
-## Acknowledgments
-
-- Built using xAI's Grok LLM for architecture and documentation
-- Inspired by modern development workflow best practices
+MIT License — see the [LICENSE](LICENSE) file in the source repository for full terms.

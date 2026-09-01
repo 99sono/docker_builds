@@ -1,30 +1,19 @@
 #!/usr/bin/env bash
 #
-# 10_run_all_verifications.sh
+# 00_run_all_verifications.sh
 #
 # Purpose:
 #   Run all verification scripts for the Level 03 coding agents image in sequence.
 #   This script orchestrates the complete verification process and stops the container at the end.
 #
-# Behavior:
-#   - Sources common environment variables for consistent configuration.
-#   - Starts with running the container entrypoint script.
-#   - Runs verification scripts 03 through 09 in order.
-#   - Stops the container at the end.
-#   - Fails fast if any verification step fails.
-#   - Provides clear progress reporting.
-#
 # Verification Scripts Run:
-#   - 03_verify_gemini_cli.sh
-#   - 04_verify_qwen_code.sh
+#   - 02_check_container_access.sh
 #   - 05_verify_openai_codex.sh
-#   - 06_verify_claude_code.sh
-#   - 07_verify_grok_cli.sh
-#   - 08_verify_speckit.sh
+#   - 06_verify_opencode.sh
+#   - 07_verify_antigravity.sh
+#   - 08_verify_rtk.sh
 #   - 09_verify_cline.sh
 #
-
-# Fail fast: -e exit on error, -u error on unset var, -o pipefail fail on first error in pipelines
 set -euo pipefail
 
 # Source common environment variables
@@ -54,13 +43,11 @@ echo "=================================================="
 
 # Array of verification scripts to run (automated testing - no interactive scripts)
 verification_scripts=(
-    "02_check_container_access.sh"  # Non-interactive container access test
-    "03_verify_gemini_cli.sh"
-    "04_verify_qwen_code.sh"
+    "02_check_container_access.sh"
     "05_verify_openai_codex.sh"
-    "06_verify_claude_code.sh"
-    "07_verify_grok_cli.sh"
-    "08_verify_speckit.sh"
+    "06_verify_opencode.sh"
+    "07_verify_antigravity.sh"
+    "08_verify_rtk.sh"
     "09_verify_cline.sh"
 )
 
@@ -88,8 +75,6 @@ echo "🛑 STEP 3: Stop Container"
 echo "=================================================="
 echo "[verify-all] Stopping container..."
 
-# Find the container and stop it
-# Use the proper environment variable for container name
 CONTAINER_NAME="${TEST_CONTAINER_NAME}"
 if docker ps -q --filter "name=${CONTAINER_NAME}" | grep -q .; then
     echo "[verify-all] Stopping container: ${CONTAINER_NAME}"

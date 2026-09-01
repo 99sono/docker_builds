@@ -5,23 +5,23 @@ This layer builds on the base image to provide a complete development environmen
 ## Development Environments
 
 ### Java Development
-- OpenJDK 25
+- OpenJDK 21
 - Pre-configured JAVA_HOME and PATH
 - Maven build system
 
 ### Python Development
 - Miniforge3 installation in ~/programs/miniforge3
 - Conda environment management
-- pip package manager
+- Python 3.14.7 in the base environment
 
 ### Node.js Development
-- Node.js 24.14.0 in ~/programs/node
+- Node.js 24.19 installed via conda (in ~/programs/miniforge3/bin)
 - npm package manager
 
 ## Prerequisites
 
 - Base image (development-level01-basic-software:1.0.0) must be built first
-- Docker with sufficient disk space (~2GB)
+- Docker with sufficient disk space (~3.4GB)
 
 ## Building
 
@@ -31,13 +31,10 @@ This layer builds on the base image to provide a complete development environmen
 ```
 
 ## Verification
-After building the image, run the verification scripts:
+
 ```bash
 cd verify
-for test in *.sh; do
-    echo "Running $test..."
-    ./$test || echo "Test failed!"
-done
+./00_run_all_verifications.sh
 ```
 
 ## Usage
@@ -67,7 +64,7 @@ ssh -p 2222 developer@localhost
 ### Python Projects
 ```bash
 cd ~/dev/python
-conda create -n myproject python=3.11
+conda create -n myproject python=3.14
 conda activate myproject
 pip install -r requirements.txt
 ```
@@ -92,7 +89,7 @@ mvn archetype:generate
 - Install packages via conda or pip
 
 ### Node.js Setup
-- Install global packages with npm install -g
+- Install global packages with `npm install -g` (installs into conda base env)
 - Configure project-specific settings as needed
 
 ### Java Configuration

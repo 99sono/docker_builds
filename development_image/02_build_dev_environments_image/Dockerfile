@@ -4,31 +4,22 @@ FROM development-level01-basic-software:${IMAGE_VERSION}
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
-ENV JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64
+ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
 ENV PATH=$JAVA_HOME/bin:$PATH
-
 
 # Start as user root
 USER root
 
-# Install development tools and dependencies
+# Install all system-level dependencies in a single layer.
+# build-essential: gcc/g++, make, essential build tools.
+#   Required for Python C extensions, Node.js native modules, Java JNI libraries.
 RUN apt-get update && apt-get install -y \
     build-essential \
-    software-properties-common \
     pkg-config \
+    openjdk-21-jdk \
+    maven \
     && apt-get clean \
-    && rm -rf  /tmp/* /var/tmp/*
-# /var/lib/apt/lists/*
-
-# Create programs directory
-RUN mkdir -p /home/developer/programs \
-    && chown developer:developer /home/developer/programs \
-    && chmod 755 /home/developer/programs
-
-# Install Java Development Kit
-COPY scripts/setup_java.sh /usr/local/bin/setup_java.sh
-RUN chmod +x /usr/local/bin/setup_java.sh \
-    && /usr/local/bin/setup_java.sh
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Copy setup scripts
 COPY scripts/setup_miniforge3.sh /usr/local/bin/setup_miniforge3.sh
@@ -37,19 +28,11 @@ COPY scripts/setup_nodejs.sh /usr/local/bin/setup_nodejs.sh
 # Set permissions
 RUN chmod +x /usr/local/bin/setup_miniforge3.sh /usr/local/bin/setup_nodejs.sh
 
-# Install build-essential: Provides gcc/g++, make, and essential build tools
-# Required for:
-# - Python packages with C extensions (numpy, scipy, pandas)
-# - Node.js native modules (node-gyp, bcrypt, sharp)
-# - Java JNI native libraries
-# - Any source compilation during development
-RUN apt install build-essential
-
 # Switch to developer user for installations
 USER developer
 WORKDIR /home/developer
 
-# Run setup scripts
+# Run setup scripts in order: miniforge first (provides conda), then nodejs (uses conda)
 RUN /usr/local/bin/setup_miniforge3.sh \
     && /usr/local/bin/setup_nodejs.sh
 
