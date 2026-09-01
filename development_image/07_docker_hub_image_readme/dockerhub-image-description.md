@@ -138,4 +138,4 @@ This repository contains the complete build pipeline with 4 layers of Docker ima
 
 ## License
 
-Free to use for personal and commercial projects. See the source repository for build files and additional details.
+MIT License — see the [LICENSE](LICENSE) file in the source repository for full terms.
