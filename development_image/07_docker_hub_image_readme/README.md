@@ -17,14 +17,13 @@ When you publish a new version of the development image to Docker Hub, you can u
 **For Future Updates:** To verify current software versions inside a running container, run these commands:
 
 ```bash
-java --version
-conda --version
-python --version
+java -version
 node --version
-lsb_release -a
-grok --version
-gemini --version
-qwen --version
+python --version
+rtk --version
+cline --version
+opencode --version
+agy --version
 codex --version
 ```
 
