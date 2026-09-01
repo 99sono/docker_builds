@@ -70,8 +70,8 @@ echo "[verify-04/03] Toolchain sanity checks (inside container)..."
 exec_c "command -v java && java -version"
 exec_c "command -v javac && javac -version"
 # Node
-# Node may be available via /home/developer/programs/node/bin, prepend PATH for safety
-exec_c 'export NODE_BIN_DIR="/home/developer/programs/node/bin"; export PATH="$NODE_BIN_DIR:$PATH"; command -v node && node --version'
+# Node is available via conda base environment (Miniforge3)
+exec_c 'source /home/developer/programs/miniforge3/etc/profile.d/conda.sh && conda activate base && command -v node && node --version'
 # Python
 exec_c "command -v python && python --version || (command -v python3 && python3 --version)"
 
