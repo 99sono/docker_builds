@@ -1,6 +1,7 @@
 # Dump folders
 deleteMe
 deleteMe*
+deleteME*
 
 # Docker
 .docker/
