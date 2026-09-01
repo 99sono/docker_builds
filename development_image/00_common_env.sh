@@ -20,7 +20,11 @@ export TIMEZONE="Europe/Zurich"
 export UBUNTU_VERSION="24.04"
 export UBUNTU_IMAGE="ubuntu:${UBUNTU_VERSION}"
 
-
+# Runtime versions
+export NODE_VERSION="24.19"
+export JAVA_VERSION="21"
+export PYTHON_VERSION="3.14.7"
+export MAVEN_VERSION="3.9.6"
 
 # Docker Hub repository information for publishing
 export DOCKER_HUB_REPO_NAME="99sono/99sono-public-repo"

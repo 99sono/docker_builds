@@ -1,29 +1,34 @@
 #!/bin/bash
-# Script to install Node.js in /home/developer/programs/node
+# Script to install Node.js via conda into the Miniforge3 base environment.
+#
+# Prerequisite:
+#   - Miniforge3 must already be installed (setup_miniforge3.sh runs first).
+#
+# Installs:
+#   - Node.js 24.19 into the conda base environment.
+#
+# After this script runs, `node` and `npm` are available in
+# /home/developer/programs/miniforge3/bin/ alongside python.
 
-NODE_VERSION="24.14.0"
-INSTALL_DIR="/home/developer/programs/node"
-TEMP_DIR="/tmp/node-install"
+set -euo pipefail
 
-# Create temporary directory
-mkdir -p "$TEMP_DIR"
+CONDA_HOME="/home/developer/programs/miniforge3"
+NODEJS_VERSION="24.19"
 
-# Download Node.js
-curl -L "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz" -o "$TEMP_DIR/node.tar.xz" || {
-    echo "Error: Failed to download Node.js"
+# Activate conda (required because Docker RUN does not source .bashrc)
+source "$CONDA_HOME/etc/profile.d/conda.sh"
+conda activate base
+
+# Install Node.js via conda
+echo "[setup_nodejs] Installing Node.js ${NODEJS_VERSION} via conda..."
+conda install -y "nodejs=${NODEJS_VERSION}" || {
+    echo "Error: Failed to install Node.js via conda"
     exit 1
 }
 
-# Extract and install
-mkdir -p "$INSTALL_DIR"
-tar -xJf "$TEMP_DIR/node.tar.xz" -C "$INSTALL_DIR" --strip-components=1 || {
-    echo "Error: Failed to extract Node.js"
-    exit 1
-}
+# Verify installation
+echo "[setup_nodejs] Verifying installation..."
+echo "  Node: $(node --version 2>&1)"
+echo "  NPM:  $(npm --version 2>&1)"
 
-# Update PATH in .bashrc (remove any existing Node.js PATH entry first)
-sed -i '/programs\/node\/bin/d' /home/developer/.bashrc
-echo 'export PATH="/home/developer/programs/node/bin:$PATH"' >> /home/developer/.bashrc
-
-# Clean up
-rm -rf "$TEMP_DIR"
+echo "[setup_nodejs] Setup complete."

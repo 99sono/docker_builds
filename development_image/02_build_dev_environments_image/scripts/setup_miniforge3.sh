@@ -1,31 +1,56 @@
 #!/bin/bash
-# Script to install Miniforge3 for Python
+# Script to install Miniforge3 (Python + conda)
+#
+# Installs:
+#   - Miniforge3 (conda) with Python in the base environment
+#
+# After this script runs, `python` and `conda` are available in
+# /home/developer/programs/miniforge3/bin/ and are on PATH for all
+# future interactive shells (via conda init in .bashrc).
 
-INSTALL_DIR="/home/developer/programs/miniforge3"
+set -euo pipefail
+
+CONDA_HOME="/home/developer/programs/miniforge3"
 INSTALLER_URL="https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh"
 INSTALLER_PATH="/tmp/Miniforge3-Linux-x86_64.sh"
 
-# Download Miniforge3 installer
-curl -L -o "$INSTALLER_PATH" "$INSTALLER_URL" || {
+# --- 1. Download Miniforge3 installer ---
+echo "[setup_miniforge3] Downloading Miniforge3 installer..."
+curl -fsSL -o "$INSTALLER_PATH" "$INSTALLER_URL" || {
     echo "Error: Failed to download Miniforge3 installer"
     exit 1
 }
 
-# Install Miniforge3 non-interactively
-bash "$INSTALLER_PATH" -b -p "$INSTALL_DIR" || {
+# --- 2. Install Miniforge3 non-interactively ---
+echo "[setup_miniforge3] Installing Miniforge3 to $CONDA_HOME..."
+bash "$INSTALLER_PATH" -b -p "$CONDA_HOME" || {
     echo "Error: Miniforge3 installation failed"
     exit 1
 }
 
-# Initialize Miniforge3
-"$INSTALL_DIR/bin/conda" init bash || {
-    echo "Error: Failed to initialize Miniforge3"
+# Clean up installer
+rm -f "$INSTALLER_PATH"
+
+# --- 3. Initialize conda for bash ---
+echo "[setup_miniforge3] Initializing conda for bash..."
+"$CONDA_HOME/bin/conda" init bash
+
+# Enable auto-activation of base env in future shells
+"$CONDA_HOME/bin/conda" config --set auto_activate_base true
+
+# --- 4. Pin Python version in the base environment ---
+PYTHON_VERSION="3.14.7"
+echo "[setup_miniforge3] Installing Python ${PYTHON_VERSION} into base environment..."
+source "$CONDA_HOME/etc/profile.d/conda.sh"
+conda activate base
+conda install -y "python=${PYTHON_VERSION}" || {
+    echo "Error: Failed to install Python ${PYTHON_VERSION} via conda"
     exit 1
 }
 
-# Clean up
-rm -f "$INSTALLER_PATH"
+# --- 5. Verify installation ---
+echo "[setup_miniforge3] Verifying installation..."
+echo "  Python: $(python --version 2>&1)"
+echo "  Conda:  $(conda --version 2>&1)"
 
-# Update .bashrc to activate Miniforge3
-echo "source $INSTALL_DIR/etc/profile.d/conda.sh" >> /home/developer/.bashrc
-echo "conda activate base" >> /home/developer/.bashrc
+echo "[setup_miniforge3] Setup complete."
